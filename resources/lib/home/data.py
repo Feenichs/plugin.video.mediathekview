@@ -173,6 +173,22 @@ class Database(object):
         rows = self.execute('SELECT status, lastupdate FROM status')
         return rows[0] if rows else (None, 0)
 
+    def since(self, days):
+        """
+        Start of the last days for "new" films: counted from the date of the film list, a database
+        that was not updated for a while would show empty rows otherwise
+        """
+        if not hasattr(self, '_listed'):
+            try:
+                rows = self.execute('SELECT filmupdate, lastupdate FROM status')
+                self._listed = max(rows[0]) if rows else 0
+            # pylint: disable=broad-except
+            except Exception:
+                self._listed = 0
+        now = int(time.time())
+        reference = min(now, int(self._listed or 0)) or now
+        return reference - days * 86400
+
 
 def hide_variants():
     return appContext.ADDONCLASS.getSetting('tvhidevariants') != 'false'
@@ -195,7 +211,7 @@ def _dedupe(items, limit):
 
 def recent_films(db, channels=None, days=2, limit=ROW_MAX_ITEMS, home=True, exclude=None):
     conditions = ['aired > ?']
-    params = [int(time.time()) - days * 86400]
+    params = [db.since(days)]
     if channels:
         conditions.append('channel IN (%s)' % ','.join('?' * len(channels)))
         params.extend(channels)
@@ -208,7 +224,7 @@ def recent_films(db, channels=None, days=2, limit=ROW_MAX_ITEMS, home=True, excl
 def genre_films(db, show_conditions, min_duration, days, limit=ROW_MAX_ITEMS):
     conditions = ['(%s)' % ' OR '.join(show_conditions), 'duration >= ?', 'aired > ?',
                   'channel NOT IN (%s)' % ','.join('?' * len(FOREIGN_CHANNELS))]
-    params = [min_duration, int(time.time()) - days * 86400] + list(FOREIGN_CHANNELS)
+    params = [min_duration, db.since(days)] + list(FOREIGN_CHANNELS)
     return _dedupe(db.films(conditions, params, limit=limit * 2, home=True), limit)
 
 
@@ -263,7 +279,7 @@ def channel_shows(db, channel, recent_days=None, limit=None):
     params = [channel]
     if recent_days:
         sql += ' AND aired > ?'
-        params.append(int(time.time()) - recent_days * 86400)
+        params.append(db.since(recent_days))
     if _settings().getNoFutur():
         sql += ' AND +aired < ?'
         params.append(int(time.time()))
@@ -304,7 +320,7 @@ def new_shows(db, days=2, limit=ROW_MAX_ITEMS):
     sql = ('SELECT showname, GROUP_CONCAT(DISTINCT showid), GROUP_CONCAT(DISTINCT channel), COUNT(*), MAX(aired) '
            'FROM film WHERE aired > ? AND +aired < ? AND duration >= ? AND showname <> \'LIVESTREAM\' AND channel NOT IN (%s) '
            'GROUP BY showname ORDER BY MAX(aired) DESC LIMIT %d' % (','.join('?' * len(FOREIGN_CHANNELS)), limit * 2))
-    params = [int(time.time()) - days * 86400, int(time.time()), HOME_MIN_DURATION] + list(FOREIGN_CHANNELS)
+    params = [db.since(days), int(time.time()), HOME_MIN_DURATION] + list(FOREIGN_CHANNELS)
     items = [show_item(showids.split(','), name, channel_list.split(','), count, latest)
              for name, showids, channel_list, count, latest in db.execute(sql, params)
              if not (hide_variants() and 'Gebärdensprache' in (name or ''))]

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3~tv1"
+	version="1.1.3~tv2"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -34,6 +34,8 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv2 (2026-10-22):
+- [fix] TV interface: "new" rows count from the date of the film list, the preview of the tab bar shows the first filled row
 v.1.1.3~tv1 (2026-10-22):
 - [new] TV interface in the style of the media library apps on Fire TV: tab bar, rows, preview, detail pages, continue watching
 - [fix] Videos without HD played in the small instead of the normal quality

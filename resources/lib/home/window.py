@@ -441,10 +441,12 @@ class HomeWindow(xbmcgui.WindowXML):
             if self._stale(generation):
                 return
             shown = 0
-            for index, row in enumerate(rows):
+            for row in rows:
                 items = list(row['items'][:data.ROW_MAX_ITEMS])
                 if not items:
                     continue
+                # filled rows without gaps: the preview of the tab bar shows the first tile of the first row
+                index = shown
                 if row.get('more') and len(row['items']) >= data.ROW_MAX_ITEMS:
                     items.append(data.make_item(data.KIND_ALL, _string(30671), row_title=row['title'], more=row['more']))
                 with self._lock:

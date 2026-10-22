@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 # pylint: disable=import-error
 import time
 import resources.lib.appContext as appContext
-import os
 import xbmcgui
 import xbmcplugin
 import resources.lib.mvutils as mvutils

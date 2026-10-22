@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3"
+	version="1.1.3~tv1"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -11,6 +11,9 @@
 		point="xbmc.python.pluginsource"
 		library="addon.py">
 		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.python.script" library="script.py">
+		<provides>executable</provides>
 	</extension>
 	<extension point="kodi.context.item">
 	  <menu id="kodi.core.main">
@@ -31,6 +34,11 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv1 (2026-10-22):
+- [new] TV interface in the style of the media library apps on Fire TV: tab bar, rows, preview, detail pages, continue watching
+- [fix] Videos without HD played in the small instead of the normal quality
+- [fix] Air times were one hour early during daylight saving time
+- [fix] Indexes for the database, SQL injection, crashes, NFO files and downloads
 v.1.1.3 (2024-06-02):
 - [fix] Query builder using time() instead of getLastUpdate which breaks cache usage
 - [fix] Rollback data type for aired / created to INT due to problems with mysql (#234)

@@ -16,6 +16,7 @@ import time
 from datetime import datetime
 
 # pylint: disable=import-error
+import xbmc
 import xbmcgui
 import xbmcplugin
 
@@ -127,7 +128,9 @@ class MediathekViewPlugin(KodiPlugin):
         self.logger.debug("start Skin {}", self.getSkinName())
         #
         mode = self.get_arg('mode', None)
-        if mode is None:
+        if mode is None and self._open_home_window():
+            pass
+        elif mode is None:
             self.show_main_menu()
             self.setViewId(self.resolveViewId('MAIN'))
         elif mode == 'search':
@@ -240,6 +243,8 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'playwithsrt':
             filmid = self.get_arg('id', "")
             Downloader(self).play_movie_with_subs(filmid)
+        elif mode == 'home':
+            self.run_builtin('RunScript({},home)'.format(self.addon_id))
 
         # cleanup saved searches
         if self.get_setting('lastsearch1') != '' and (mode is None or mode != 'newsearch'):
@@ -249,6 +254,18 @@ class MediathekViewPlugin(KodiPlugin):
         #
         self.logger.debug(" View id {}", self.getCurrentViewId())
         self.logger.debug(" Skin {}", self.getSkinName())
+
+    def _open_home_window(self):
+        """
+        Open the TV interface instead of the main menu when the add-on is opened in a media window.
+        Widgets, JSON-RPC requests and the "classic menu" tile of the TV interface still get the menu.
+        """
+        if (self.get_arg('classic', '0') == '1' or self.addon_handle == -1
+                or self.get_setting('tvhomewindow') == 'false' or not xbmc.getCondVisibility('Window.IsMedia')):
+            return False
+        self.run_builtin('RunScript({},home)'.format(self.addon_id))
+        self.end_of_directory(False, cache_to_disc=False)
+        return True
 
     def exit(self):
         """ Shutdown of the application """

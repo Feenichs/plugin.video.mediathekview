@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="30001">
+		<setting label="30600"			type="lsep"																			/>
+		<setting id="tvhomewindow"		type="bool"		label="30601"	default="true"										/>
+		<setting id="tvhidevariants"	type="bool"		label="30603"	default="true"										/>
+		<setting						type="action"	label="30602"	action="RunScript(plugin.video.mediathekview,home)"	option="close"	/>
+		<setting label="30001"			type="lsep"																			/>
 		<setting id="quality"			type="bool"		label="30110"	default="true"										/>
 		<setting id="autosub"			type="bool"		label="30111"	default="false"										/>
 		<setting id="nofuture"			type="bool"		label="30112"	default="true"										/>

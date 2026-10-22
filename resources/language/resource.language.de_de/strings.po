@@ -365,6 +365,278 @@ msgstr "Ein Name für die Suche"
 # Main Menu
 ##############
 
+
+# TV interface
+
+msgctxt "#30600"
+msgid "TV interface"
+msgstr "TV-Oberfläche"
+
+msgctxt "#30601"
+msgid "Open the TV interface on start"
+msgstr "TV-Oberfläche beim Start öffnen"
+
+msgctxt "#30602"
+msgid "Open the TV interface"
+msgstr "TV-Oberfläche öffnen"
+
+msgctxt "#30603"
+msgid "Hide versions with audio description and sign language"
+msgstr "Fassungen mit Audiodeskription und Gebärdensprache ausblenden"
+
+msgctxt "#30610"
+msgid "Home"
+msgstr "Startseite"
+
+msgctxt "#30611"
+msgid "Live"
+msgstr "Live"
+
+msgctxt "#30612"
+msgid "Channels"
+msgstr "Sender"
+
+msgctxt "#30613"
+msgid "A–Z"
+msgstr "A–Z"
+
+msgctxt "#30614"
+msgid "Search"
+msgstr "Suche"
+
+msgctxt "#30615"
+msgid "More"
+msgstr "Mehr"
+
+msgctxt "#30620"
+msgid "Continue watching"
+msgstr "Weiterschauen"
+
+msgctxt "#30621"
+msgid "New in the media libraries"
+msgstr "Neu in den Mediatheken"
+
+msgctxt "#30622"
+msgid "Live now"
+msgstr "Jetzt live"
+
+msgctxt "#30623"
+msgid "Movies"
+msgstr "Spielfilme"
+
+msgctxt "#30624"
+msgid "Documentaries and reports"
+msgstr "Dokus und Reportagen"
+
+msgctxt "#30625"
+msgid "Crime"
+msgstr "Krimis"
+
+msgctxt "#30626"
+msgid "New on %s"
+msgstr "Neu bei %s"
+
+msgctxt "#30628"
+msgid "All shows"
+msgstr "Alle Sendungen"
+
+msgctxt "#30629"
+msgid "Shows with new episodes"
+msgstr "Sendungen mit neuen Folgen"
+
+msgctxt "#30630"
+msgid "Nationwide"
+msgstr "Bundesweit"
+
+msgctxt "#30631"
+msgid "Regional"
+msgstr "Regional"
+
+msgctxt "#30632"
+msgid "WDR Lokalzeit"
+msgstr "WDR Lokalzeit"
+
+msgctxt "#30633"
+msgid "Austria, Switzerland and international"
+msgstr "Österreich, Schweiz und international"
+
+msgctxt "#30634"
+msgid "Shows from A to Z"
+msgstr "Sendungen von A bis Z"
+
+msgctxt "#30635"
+msgid "Latest videos"
+msgstr "Neueste Videos"
+
+msgctxt "#30640"
+msgid "New search"
+msgstr "Neue Suche"
+
+msgctxt "#30641"
+msgid "Recent searches"
+msgstr "Letzte Suchen"
+
+msgctxt "#30642"
+msgid "Saved searches"
+msgstr "Gespeicherte Suchen"
+
+msgctxt "#30643"
+msgid "Search term (at least 3 characters)"
+msgstr "Suchbegriff (mindestens 3 Zeichen)"
+
+msgctxt "#30644"
+msgid "Remove from the list"
+msgstr "Aus der Liste entfernen"
+
+msgctxt "#30650"
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgctxt "#30651"
+msgid "Classic menu"
+msgstr "Klassisches Menü"
+
+msgctxt "#30652"
+msgid "Database information"
+msgstr "Datenbank-Info"
+
+msgctxt "#30653"
+msgid "Update database"
+msgstr "Datenbank aktualisieren"
+
+msgctxt "#30654"
+msgid "Reload"
+msgstr "Neu laden"
+
+msgctxt "#30660"
+msgid "Play"
+msgstr "Abspielen"
+
+msgctxt "#30661"
+msgid "Resume at %s"
+msgstr "Fortsetzen bei %s"
+
+msgctxt "#30662"
+msgid "Play from the beginning"
+msgstr "Von vorne abspielen"
+
+msgctxt "#30663"
+msgid "With subtitles"
+msgstr "Mit Untertiteln"
+
+msgctxt "#30664"
+msgid "Quality"
+msgstr "Qualität"
+
+msgctxt "#30665"
+msgid "Download"
+msgstr "Herunterladen"
+
+msgctxt "#30666"
+msgid "All episodes"
+msgstr "Alle Folgen"
+
+msgctxt "#30667"
+msgid "More of \"%s\""
+msgstr "Mehr von „%s“"
+
+msgctxt "#30669"
+msgid "Remove from \"Continue watching\""
+msgstr "Aus „Weiterschauen“ entfernen"
+
+msgctxt "#30670"
+msgid "Details"
+msgstr "Details"
+
+msgctxt "#30671"
+msgid "Show all"
+msgstr "Alle anzeigen"
+
+msgctxt "#30672"
+msgid "Page %d"
+msgstr "Seite %d"
+
+msgctxt "#30673"
+msgid "Previous page"
+msgstr "Vorherige Seite"
+
+msgctxt "#30674"
+msgid "Next page"
+msgstr "Nächste Seite"
+
+msgctxt "#30675"
+msgid "Loading…"
+msgstr "Wird geladen …"
+
+msgctxt "#30676"
+msgid "Nothing found"
+msgstr "Nichts gefunden"
+
+msgctxt "#30677"
+msgid "Today"
+msgstr "Heute"
+
+msgctxt "#30678"
+msgid "Yesterday"
+msgstr "Gestern"
+
+msgctxt "#30679"
+msgid "%d min"
+msgstr "%d Min."
+
+msgctxt "#30680"
+msgid "Subtitles"
+msgstr "UT"
+
+msgctxt "#30682"
+msgid "The database is being downloaded, after the first start this takes a few minutes."
+msgstr "Die Datenbank wird heruntergeladen. Nach dem ersten Start dauert das einige Minuten."
+
+
+msgctxt "#30684"
+msgid "%s shows"
+msgstr "%s Sendungen"
+
+msgctxt "#30685"
+msgid "Live"
+msgstr "Live"
+
+msgctxt "#30686"
+msgid "%s videos"
+msgstr "%s Videos"
+
+msgctxt "#30687"
+msgid "Latest: %s"
+msgstr "Neueste: %s"
+
+msgctxt "#30690"
+msgid "Mon"
+msgstr "Mo."
+
+msgctxt "#30691"
+msgid "Tue"
+msgstr "Di."
+
+msgctxt "#30692"
+msgid "Wed"
+msgstr "Mi."
+
+msgctxt "#30693"
+msgid "Thu"
+msgstr "Do."
+
+msgctxt "#30694"
+msgid "Fri"
+msgstr "Fr."
+
+msgctxt "#30695"
+msgid "Sat"
+msgstr "Sa."
+
+msgctxt "#30696"
+msgid "Sun"
+msgstr "So."
+
 msgctxt "#30901"
 msgid "Quick Search"
 msgstr "Schnelle Suche"

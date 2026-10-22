@@ -364,6 +364,278 @@ msgstr "Enter a name for the query"
 # Main Menu
 ##############
 
+
+# TV interface
+
+msgctxt "#30600"
+msgid "TV interface"
+msgstr ""
+
+msgctxt "#30601"
+msgid "Open the TV interface on start"
+msgstr ""
+
+msgctxt "#30602"
+msgid "Open the TV interface"
+msgstr ""
+
+msgctxt "#30603"
+msgid "Hide versions with audio description and sign language"
+msgstr ""
+
+msgctxt "#30610"
+msgid "Home"
+msgstr ""
+
+msgctxt "#30611"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30612"
+msgid "Channels"
+msgstr ""
+
+msgctxt "#30613"
+msgid "A–Z"
+msgstr ""
+
+msgctxt "#30614"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30615"
+msgid "More"
+msgstr ""
+
+msgctxt "#30620"
+msgid "Continue watching"
+msgstr ""
+
+msgctxt "#30621"
+msgid "New in the media libraries"
+msgstr ""
+
+msgctxt "#30622"
+msgid "Live now"
+msgstr ""
+
+msgctxt "#30623"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30624"
+msgid "Documentaries and reports"
+msgstr ""
+
+msgctxt "#30625"
+msgid "Crime"
+msgstr ""
+
+msgctxt "#30626"
+msgid "New on %s"
+msgstr ""
+
+msgctxt "#30628"
+msgid "All shows"
+msgstr ""
+
+msgctxt "#30629"
+msgid "Shows with new episodes"
+msgstr ""
+
+msgctxt "#30630"
+msgid "Nationwide"
+msgstr ""
+
+msgctxt "#30631"
+msgid "Regional"
+msgstr ""
+
+msgctxt "#30632"
+msgid "WDR Lokalzeit"
+msgstr ""
+
+msgctxt "#30633"
+msgid "Austria, Switzerland and international"
+msgstr ""
+
+msgctxt "#30634"
+msgid "Shows from A to Z"
+msgstr ""
+
+msgctxt "#30635"
+msgid "Latest videos"
+msgstr ""
+
+msgctxt "#30640"
+msgid "New search"
+msgstr ""
+
+msgctxt "#30641"
+msgid "Recent searches"
+msgstr ""
+
+msgctxt "#30642"
+msgid "Saved searches"
+msgstr ""
+
+msgctxt "#30643"
+msgid "Search term (at least 3 characters)"
+msgstr ""
+
+msgctxt "#30644"
+msgid "Remove from the list"
+msgstr ""
+
+msgctxt "#30650"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30651"
+msgid "Classic menu"
+msgstr ""
+
+msgctxt "#30652"
+msgid "Database information"
+msgstr ""
+
+msgctxt "#30653"
+msgid "Update database"
+msgstr ""
+
+msgctxt "#30654"
+msgid "Reload"
+msgstr ""
+
+msgctxt "#30660"
+msgid "Play"
+msgstr ""
+
+msgctxt "#30661"
+msgid "Resume at %s"
+msgstr ""
+
+msgctxt "#30662"
+msgid "Play from the beginning"
+msgstr ""
+
+msgctxt "#30663"
+msgid "With subtitles"
+msgstr ""
+
+msgctxt "#30664"
+msgid "Quality"
+msgstr ""
+
+msgctxt "#30665"
+msgid "Download"
+msgstr ""
+
+msgctxt "#30666"
+msgid "All episodes"
+msgstr ""
+
+msgctxt "#30667"
+msgid "More of \"%s\""
+msgstr ""
+
+msgctxt "#30669"
+msgid "Remove from \"Continue watching\""
+msgstr ""
+
+msgctxt "#30670"
+msgid "Details"
+msgstr ""
+
+msgctxt "#30671"
+msgid "Show all"
+msgstr ""
+
+msgctxt "#30672"
+msgid "Page %d"
+msgstr ""
+
+msgctxt "#30673"
+msgid "Previous page"
+msgstr ""
+
+msgctxt "#30674"
+msgid "Next page"
+msgstr ""
+
+msgctxt "#30675"
+msgid "Loading…"
+msgstr ""
+
+msgctxt "#30676"
+msgid "Nothing found"
+msgstr ""
+
+msgctxt "#30677"
+msgid "Today"
+msgstr ""
+
+msgctxt "#30678"
+msgid "Yesterday"
+msgstr ""
+
+msgctxt "#30679"
+msgid "%d min"
+msgstr ""
+
+msgctxt "#30680"
+msgid "Subtitles"
+msgstr ""
+
+msgctxt "#30682"
+msgid "The database is being downloaded, after the first start this takes a few minutes."
+msgstr ""
+
+
+msgctxt "#30684"
+msgid "%s shows"
+msgstr ""
+
+msgctxt "#30685"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30686"
+msgid "%s videos"
+msgstr ""
+
+msgctxt "#30687"
+msgid "Latest: %s"
+msgstr ""
+
+msgctxt "#30690"
+msgid "Mon"
+msgstr ""
+
+msgctxt "#30691"
+msgid "Tue"
+msgstr ""
+
+msgctxt "#30692"
+msgid "Wed"
+msgstr ""
+
+msgctxt "#30693"
+msgid "Thu"
+msgstr ""
+
+msgctxt "#30694"
+msgid "Fri"
+msgstr ""
+
+msgctxt "#30695"
+msgid "Sat"
+msgstr ""
+
+msgctxt "#30696"
+msgid "Sun"
+msgstr ""
+
 msgctxt "#30901"
 msgid "Quick Search"
 msgstr "Quick Search"

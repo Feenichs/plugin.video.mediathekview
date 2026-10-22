@@ -7,7 +7,6 @@ SPDX-License-Identifier: MIT
 """
 
 import time
-import os
 from datetime import datetime
 # pylint: disable=import-error
 import xbmcgui

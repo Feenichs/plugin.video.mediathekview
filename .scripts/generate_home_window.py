@@ -28,14 +28,14 @@ ICONS = os.path.join(ROOT, 'resources', 'icons')
 ADDON = 'plugin.video.mediathekview'
 NUM_ROWS = 10
 
-# Colours (AARRGGBB): night blue background like the MediathekView icon, blue accent
+# Colours (AARRGGBB): night blue background like the MediathekView icon, yellow accent
 BACKGROUND_RGB = (9, 18, 33)
 BACKGROUND = 'FF091221'
 TEXT = 'FFFFFFFF'
 TEXT_DIM = 'FF8FA3BF'
 TEXT_DARK = 'FF091221'
-ACCENT = 'FF3D8BFF'
-MESSAGE = 'FF7DB5FF'
+ACCENT = 'FFFFC61A'
+MESSAGE = 'FFFFDB75'
 TILE = 'FF172338'
 TILE_FOCUSED = 'FF243552'
 
@@ -318,7 +318,7 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
                 </control>
                 <control type="textbox">
                     <left>{pl}</left><top>{ft}</top><width>{pw}</width><height>{fh}</height>
-                    <font>font13</font>
+                    <font>{ff}</font>
                     <textcolor>{text}</textcolor>
                     <shadowcolor>66000000</shadowcolor>
                     <label>$INFO[ListItem.Label]</label>
@@ -417,8 +417,10 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
         tl=THUMB_LEFT, tt=THUMB_TOP, tw=thumb_width, th=thumb_height,
         pl=THUMB_LEFT + pad, pw=thumb_width - 2 * pad,
         lt=THUMB_TOP + pad - 2, lw=int(thumb_width * 0.42), lh=logo_height,
-        st=THUMB_TOP + thumb_height - (122 if not small else 114),
-        ft=THUMB_TOP + thumb_height - (94 if not small else 88), fh=76 if not small else 72,
+        # titles get two full lines (font13 about 41 px per line, font12 about 35), a third one is cut off
+        st=THUMB_TOP + thumb_height - (130 if not small else 114),
+        ft=THUMB_TOP + thumb_height - (102 if not small else 88), fh=84 if not small else 72,
+        ff='font13' if not small else 'font12',
         # show names at the bottom like the titles of films, where the tile is darkened
         bt=THUMB_TOP + thumb_height - (122 if not small else 114), bh=(122 if not small else 114) - 12,
         cl=THUMB_LEFT + thumb_width // 5, ct=THUMB_TOP + thumb_height // 4, cw=thumb_width * 3 // 5, ch=thumb_height // 2,

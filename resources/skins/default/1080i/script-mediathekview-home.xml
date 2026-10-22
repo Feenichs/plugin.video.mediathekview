@@ -74,7 +74,7 @@
                 <control type="label">
                     <width>1100</width><height>40</height>
                     <font>font14</font>
-                    <textcolor>FF7DB5FF</textcolor>
+                    <textcolor>FFFFDB75</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
@@ -147,7 +147,7 @@
                 <control type="label">
                     <width>1100</width><height>40</height>
                     <font>font14</font>
-                    <textcolor>FF7DB5FF</textcolor>
+                    <textcolor>FFFFDB75</textcolor>
                     <label>$INFO[Container(301).ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
@@ -220,7 +220,7 @@
                 <control type="label">
                     <width>1100</width><height>40</height>
                     <font>font14</font>
-                    <textcolor>FF7DB5FF</textcolor>
+                    <textcolor>FFFFDB75</textcolor>
                     <label>$INFO[Window.Property(detail_channel)]$INFO[Window.Property(detail_show),  ·  ]</label>
                 </control>
                 <control type="group">
@@ -382,13 +382,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -460,7 +460,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -550,13 +550,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -628,7 +628,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -680,7 +680,7 @@
             <aligny>center</aligny>
             <font>font30_title</font>
             <textcolor>FFFFFFFF</textcolor>
-            <label>[B]Mediathek[/B][COLOR FF3D8BFF][B]View[/B][/COLOR]</label>
+            <label>[B]Mediathek[/B][COLOR FFFFC61A][B]View[/B][/COLOR]</label>
         </control>
         <control type="list" id="100">
             <left>350</left><top>28</top><width>1300</width><height>72</height>
@@ -704,7 +704,7 @@
             </control>
             <control type="image">
                 <left>70</left><top>62</top><width>50</width><height>4</height>
-                <texture colordiffuse="FF3D8BFF">mv_white.png</texture>
+                <texture colordiffuse="FFFFC61A">mv_white.png</texture>
                 <visible>String.IsEqual(ListItem.Property(active),true)</visible>
             </control>
             </itemlayout>
@@ -737,7 +737,7 @@
             </control>
             <control type="image">
                 <left>70</left><top>62</top><width>50</width><height>4</height>
-                <texture colordiffuse="FF3D8BFF">mv_white.png</texture>
+                <texture colordiffuse="FFFFC61A">mv_white.png</texture>
                 <visible>String.IsEqual(ListItem.Property(active),true) + !Control.HasFocus(100)</visible>
             </control>
             </focusedlayout>
@@ -832,13 +832,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -910,7 +910,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1000,13 +1000,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1078,7 +1078,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1188,13 +1188,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1266,7 +1266,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1356,13 +1356,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1434,7 +1434,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1544,13 +1544,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1622,7 +1622,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1712,13 +1712,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1790,7 +1790,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -1900,13 +1900,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -1978,7 +1978,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2068,13 +2068,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -2146,7 +2146,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2256,13 +2256,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -2334,7 +2334,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2424,13 +2424,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -2502,7 +2502,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2612,13 +2612,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -2690,7 +2690,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2780,13 +2780,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -2858,7 +2858,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -2968,13 +2968,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3046,7 +3046,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -3136,13 +3136,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3214,7 +3214,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -3324,13 +3324,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3402,7 +3402,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -3492,13 +3492,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3570,7 +3570,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -3680,13 +3680,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3758,7 +3758,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -3848,13 +3848,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -3926,7 +3926,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -4036,13 +4036,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -4114,7 +4114,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -4204,13 +4204,13 @@
             <control type="group">
                 <visible>[String.IsEqual(ListItem.Property(kind),film)]</visible>
                 <control type="label">
-                    <left>30</left><top>106</top><width>348</width><height>30</height>
+                    <left>30</left><top>98</top><width>348</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
                 </control>
                 <control type="textbox">
-                    <left>30</left><top>134</top><width>348</width><height>76</height>
+                    <left>30</left><top>126</top><width>348</width><height>84</height>
                     <font>font13</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
@@ -4282,7 +4282,7 @@
             <control type="progress">
                 <left>30</left><top>216</top><width>348</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -4396,7 +4396,7 @@
                 </control>
                 <control type="textbox">
                     <left>28</left><top>113</top><width>304</width><height>72</height>
-                    <font>font13</font>
+                    <font>font12</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
                     <label>$INFO[ListItem.Label]</label>
@@ -4467,7 +4467,7 @@
             <control type="progress">
                 <left>28</left><top>189</top><width>304</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>
@@ -4564,7 +4564,7 @@
                 </control>
                 <control type="textbox">
                     <left>28</left><top>113</top><width>304</width><height>72</height>
-                    <font>font13</font>
+                    <font>font12</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <shadowcolor>66000000</shadowcolor>
                     <label>$INFO[ListItem.Label]</label>
@@ -4635,7 +4635,7 @@
             <control type="progress">
                 <left>28</left><top>189</top><width>304</width><height>6</height>
                 <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
-                <midtexture colordiffuse="FF3D8BFF">mv_white.png</midtexture>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
                 <info>ListItem.PercentPlayed</info>
                 <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
             </control>

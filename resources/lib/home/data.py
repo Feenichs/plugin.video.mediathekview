@@ -6,6 +6,7 @@ positions for "Continue watching".
 
 SPDX-License-Identifier: MIT
 """
+import fnmatch
 import json
 import os
 import threading
@@ -96,10 +97,14 @@ LIVESTREAM_LOGOS = {
     'ZDF.neoLivestream': 'zdf.neo',
 }
 
+# shows that collect feature films (patterns of LIKE)
+FILM_SHOWS = ('Filme%', 'Kino - Filme%', '%Fernsehfilm%', 'Das kleine Fernsehspiel', 'Spielfilm%')
+# shows of unrelated films: a film without an image does not get the image of another one
+COLLECTION_SHOWS = FILM_SHOWS + ('Dokumentation%', '%Dokumentarfilm%', '%Kurzfilm%')
+
 # rows of the home tab built from show names: (string id, conditions on showname, minimum duration, days)
 GENRE_ROWS = (
-    (30623, ("showname LIKE 'Filme%'", "showname LIKE 'Kino - Filme%'", "showname LIKE '%Fernsehfilm%'",
-             "showname = 'Das kleine Fernsehspiel'", "showname LIKE 'Spielfilm%'"), 3600, 30),
+    (30623, tuple("showname LIKE '%s'" % pattern for pattern in FILM_SHOWS), 3600, 30),
     (30625, ("showname = 'Tatort'", "showname LIKE 'Polizeiruf%'", "showname LIKE '%Krimi%'",
              "showname LIKE 'SOKO%'", "showname = 'Der Alte'", "showname = 'Ein starkes Team'"), 2400, 30),
     (30624, ("showname LIKE '%Doku%'", "showname LIKE 'Dokumentation%'", "showname LIKE '%Reportage%'",
@@ -495,6 +500,11 @@ def image_store():
     return images.ImageStore(_settings().getDatapath())
 
 
+def _collection(show):
+    name = (show or '').lower()
+    return any(fnmatch.fnmatchcase(name, pattern.lower().replace('%', '*')) for pattern in COLLECTION_SHOWS)
+
+
 def attach_images(items):
     """ The images that are known already, returns the films and shows that still need one """
     if not images_enabled():
@@ -508,6 +518,8 @@ def attach_images(items):
     for item in candidates:
         own = known.get(item['key'])
         show = next((shows[s] for s in item['showids'] if s in shows), '')
+        if item['kind'] == KIND_FILM and _collection(item['show']):
+            show = ''
         item['image'] = own or show
         # a film with the image of its show still looks for its own
         if not own and (item['kind'] == KIND_FILM or not show):
@@ -521,7 +533,7 @@ def resolve_image(item):
     showid = item['showids'][0] if item['showids'] else ''
     if item['kind'] == KIND_FILM:
         image = store.resolve(item['key'], showid) if item['key'] else ''
-        if image:
+        if image or _collection(item['show']):
             return image
         return next(iter(store.cached([], item['showids'])[1].values()), '')
     # a show: the image of its newest episode that has one

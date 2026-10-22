@@ -4,6 +4,7 @@
 		<setting label="30600"			type="lsep"																			/>
 		<setting id="tvhomewindow"		type="bool"		label="30601"	default="true"										/>
 		<setting id="tvhidevariants"	type="bool"		label="30603"	default="true"										/>
+		<setting id="tvimages"			type="bool"		label="30604"	default="true"										/>
 		<setting						type="action"	label="30602"	action="RunScript(plugin.video.mediathekview,home)"	option="close"	/>
 		<setting label="30001"			type="lsep"																			/>
 		<setting id="quality"			type="bool"		label="30110"	default="true"										/>

@@ -97,6 +97,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self._refresh_pending = False
         self._window_id = None
         self._player = _Player(self._on_playback_end)
+        self._images = _ImageLoader(self)
 
     # Kodi callbacks
 
@@ -470,7 +471,7 @@ class HomeWindow(xbmcgui.WindowXML):
         list_id = ROW_LISTS[index]
         control = self.getControl(list_id)
         control.reset()
-        control.addItems([self._make_listitem(item) for item in items])
+        self._add_items(control, items)
         self.getControl(ROW_LABELS[index]).setLabel(title or '')
         self._row_data[list_id] = items
         self.getControl(ROW_GROUPS[index]).setVisible(index >= self._row_offset)
@@ -593,7 +594,7 @@ class HomeWindow(xbmcgui.WindowXML):
                 if self._stale(generation):
                     return
                 self._grid['items'] = items
-                panel.addItems([self._make_listitem(item) for item in items])
+                self._add_items(panel, items)
                 self.setProperty('loading', '')
                 if not source['items']:
                     self.setProperty('empty', 'true')
@@ -634,6 +635,8 @@ class HomeWindow(xbmcgui.WindowXML):
                     episodes = [e for e in data.show_films(db, film['showids'], [film['channel']], limit=60)
                                 if e['filmid'] != film['filmid']]
             data.apply_history([film] + episodes)
+            if data.attach_images([film]):
+                self._images.request([(film, None)], generation)
             if self._stale(generation):
                 return
             info = {'film': film, 'episodes': episodes[:data.ROW_MAX_ITEMS]}
@@ -655,6 +658,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self.setProperty('detail_meta', item['meta'])
         self.setProperty('detail_color', item['color'])
         self.setProperty('detail_logo', item['logo'])
+        self.setProperty('detail_image', item['image'])
         self.setProperty('detail_channel', data.channel_info(item['channel'])[0])
         self.setProperty('detail_episodes_title', _string(30667) % item['show'] if item['show'] else '')
 
@@ -683,7 +687,7 @@ class HomeWindow(xbmcgui.WindowXML):
 
         control = self.getControl(EPISODE_LIST)
         control.reset()
-        control.addItems([self._make_listitem(e) for e in info['episodes']])
+        self._add_items(control, info['episodes'])
         self.setProperty('has_episodes', 'true' if info['episodes'] else '')
 
         restore = self._restore
@@ -729,13 +733,32 @@ class HomeWindow(xbmcgui.WindowXML):
 
     # Items
 
+    def _add_items(self, control, items):
+        """ Add the tiles with the images known already, the others are looked up in the background """
+        missing = set(id(i) for i in data.attach_images(items))
+        list_items = [self._make_listitem(item) for item in items]
+        control.addItems(list_items)
+        jobs = [(item, list_item) for item, list_item in zip(items, list_items) if id(item) in missing]
+        if jobs:
+            self._images.request(jobs, self._generation)
+
+    def show_image(self, item, list_item, image):
+        """ An image was found in the background """
+        item['image'] = image
+        if list_item is not None:
+            list_item.setProperty('image', image)
+            list_item.setArt({'thumb': image, 'fanart': image})
+        if self._detail and self._detail['film'] is item or list_item is None:
+            self.setProperty('detail_image', image)
+
     def _make_listitem(self, item):
         list_item = xbmcgui.ListItem(label=item['label'], label2=item['subtitle'], offscreen=True)
-        list_item.setArt({'thumb': item['logo'], 'icon': item['logo']})
+        list_item.setArt({'thumb': item['image'] or item['logo'], 'icon': item['logo'], 'fanart': item['image']})
         properties = {
             'kind': item['kind'],
             'color': item['color'] or 'FF2A3B55',
             'logo': item['logo'],
+            'image': item['image'],
             'logo_small': data.small_logo(item['logo']),
             'tile_top': item['tile_top'],
             'meta': item['meta'],
@@ -995,6 +1018,53 @@ class HomeWindow(xbmcgui.WindowXML):
         thread.daemon = True
         thread.start()
         return thread
+
+
+class _ImageLoader(object):
+    """ Looks up the images of the tiles on the websites, newest view first, a few at a time """
+
+    WORKERS = 4
+
+    def __init__(self, window):
+        self._window = window
+        self._jobs = []
+        self._condition = threading.Condition()
+        self._workers = 0
+
+    def request(self, jobs, generation):
+        with self._condition:
+            # tiles of a view that is gone are not needed anymore
+            self._jobs = [job for job in self._jobs if job[2] == generation]
+            self._jobs.extend((item, list_item, generation) for item, list_item in jobs)
+            while self._workers < self.WORKERS:
+                self._workers += 1
+                thread = threading.Thread(target=self._work, name='mv-image')
+                thread.daemon = True
+                thread.start()
+            self._condition.notify_all()
+
+    def _work(self):
+        monitor = xbmc.Monitor()
+        while True:
+            with self._condition:
+                while not self._jobs and not self._window._closing:
+                    self._condition.wait(5)
+                    if monitor.abortRequested():
+                        return
+                if self._window._closing or monitor.abortRequested():
+                    self._workers -= 1
+                    return
+                item, list_item, generation = self._jobs.pop(0)
+            if generation != self._window._generation:
+                continue
+            try:
+                image = data.resolve_image(item)
+            # pylint: disable=broad-except
+            except Exception as err:
+                _log('Image of {} failed: {}', item['label'], err)
+                image = ''
+            if image and not self._window._closing:
+                self._window.show_image(item, list_item, image)
 
 
 class _Player(xbmc.Player):

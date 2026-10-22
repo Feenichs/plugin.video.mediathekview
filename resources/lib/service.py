@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 # -- Imports ------------------------------------------------
 from __future__ import unicode_literals
+import time
 
 from resources.lib.kodi.kodiaddon import KodiService
 from resources.lib.monitorKodi import MonitorKodi
@@ -32,6 +33,7 @@ class MediathekViewService(KodiService):
         appContext.initMonitor(self.monitor)
         self.updater = MediathekViewUpdater()
         self._lastDatabaseType = self.settings.getDatabaseType()
+        self._imagesRetry = 0
 
     def __del__(self):
         self.logger = None
@@ -79,11 +81,25 @@ class MediathekViewService(KodiService):
                 self.errorCount = self.errorCount + 1
             #
             self.updater.exit()
+            self._refreshImages()
             # Sleep/wait for abort for 60 seconds
             if self.monitor.wait_for_abort(appContext.MVSETTINGS.getUpdateCheckIntervel()):
                 # Abort was requested while waiting. We should exit
                 break
         self.logger.info('Shutting down Service')
+
+    def _refreshImages(self):
+        """ Index of the websites of the films for the preview images of the TV interface """
+        if self._imagesRetry > time.time() or appContext.ADDONCLASS.getSetting('tvimages') == 'false':
+            return
+        try:
+            from resources.lib import images
+            images.ImageStore(self.settings.getDatapath()).refresh(self.monitor.abort_requested, self.logger)
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.error('Index of the websites failed: {}', err)
+            # e.g. offline: try again later instead of every check interval
+            self._imagesRetry = time.time() + 900
 
     def _ensureIndexes(self):
         """ Databases of older versions lack the indexes of the views """

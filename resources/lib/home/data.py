@@ -17,6 +17,12 @@ import resources.lib.appContext as appContext
 import resources.lib.mvutils as mvutils
 import resources.lib.extendedSearchModel as ExtendedSearchModel
 
+try:
+    from resources.lib import images
+except ImportError:
+    # Python without lzma
+    images = None
+
 KIND_FILM = 'film'
 KIND_LIVE = 'live'
 KIND_CHANNEL = 'channel'
@@ -350,7 +356,7 @@ def make_item(kind, label, **kwargs):
         'kind': kind, 'label': label, 'subtitle': '', 'plot': '', 'channel': '', 'color': '', 'logo': '', 'tile_top': '',
         'meta': '', 'message': '', 'filmid': '', 'show': '', 'showids': [], 'channels': [], 'duration': 0, 'aired': 0,
         'url': '', 'url_sd': '', 'url_hd': '', 'url_sub': '', 'progress': 0, 'resume': 0, 'action': '', 'letter': '',
-        'more': None, 'row_title': '', 'entry': None,
+        'more': None, 'row_title': '', 'entry': None, 'key': 0, 'image': '',
     }
     item.update(kwargs)
     return item
@@ -426,7 +432,7 @@ def film_item(row):
     if url_sub:
         flags.append(_language(30680))
     return make_item(
-        KIND_FILM, label, filmid=filmid, show=show, showids=[showid] if showid else [], channel=channel or '',
+        KIND_FILM, label, filmid=filmid, key=images.video_key(url_video) if images else 0, show=show, showids=[showid] if showid else [], channel=channel or '',
         channels=[channel] if channel else [], color=color, logo=logo, tile_top=show if show.lower() != label.lower() else '',
         subtitle='  ·  '.join(x for x in (format_date(aired), format_duration(duration)) if x),
         meta='  ·  '.join(x for x in meta + flags if x), plot=description or '', duration=duration, aired=aired,
@@ -475,6 +481,58 @@ def show_item(showids, name, channel_list, count, latest):
     return make_item(KIND_SHOW, name or '', show=name or '', showids=list(showids), channel=first, channels=channel_list,
                      color=color, logo=logo, tile_top=names, subtitle=_language(30686) % format_count(count),
                      meta='  ·  '.join(x for x in (names, _language(30686) % format_count(count), latest_text) if x))
+
+
+# ---------------------------------------------------------------------------
+# Preview images from the websites of the media libraries
+# ---------------------------------------------------------------------------
+
+def images_enabled():
+    return images is not None and appContext.ADDONCLASS.getSetting('tvimages') != 'false'
+
+
+def image_store():
+    return images.ImageStore(_settings().getDatapath())
+
+
+def attach_images(items):
+    """ The images that are known already, returns the films and shows that still need one """
+    if not images_enabled():
+        return []
+    candidates = [i for i in items if i['kind'] in (KIND_FILM, KIND_SHOW) and not i['image']]
+    if not candidates:
+        return []
+    known, shows = image_store().cached([i['key'] for i in candidates],
+                                        [s for i in candidates for s in i['showids']])
+    missing = []
+    for item in candidates:
+        own = known.get(item['key'])
+        show = next((shows[s] for s in item['showids'] if s in shows), '')
+        item['image'] = own or show
+        # a film with the image of its show still looks for its own
+        if not own and (item['kind'] == KIND_FILM or not show):
+            missing.append(item)
+    return missing
+
+
+def resolve_image(item):
+    """ Image of a film or show from the website, '' if there is none; runs in the background """
+    store = image_store()
+    showid = item['showids'][0] if item['showids'] else ''
+    if item['kind'] == KIND_FILM:
+        image = store.resolve(item['key'], showid) if item['key'] else ''
+        if image:
+            return image
+        return next(iter(store.cached([], item['showids'])[1].values()), '')
+    # a show: the image of its newest episode that has one
+    with Database() as db:
+        rows = db.execute('SELECT url_video FROM film WHERE showid IN (%s) ORDER BY aired DESC LIMIT 3'
+                          % ','.join('?' * len(item['showids'])), item['showids']) if item['showids'] else []
+    for (url,) in rows:
+        image = store.resolve(images.video_key(url), showid)
+        if image:
+            return image
+    return ''
 
 
 # ---------------------------------------------------------------------------

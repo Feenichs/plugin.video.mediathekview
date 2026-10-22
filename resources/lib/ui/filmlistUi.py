@@ -59,6 +59,7 @@ class FilmlistUi(object):
         #
         aFilm = Film()
         listOfElements = []
+        knownImages = self._knownImages(databaseRs)
         for element in databaseRs:
             #
             aFilm.init(element[0], element[1], element[2], element[3], element[4], element[5],
@@ -67,6 +68,9 @@ class FilmlistUi(object):
             (targetUrl, list_item) = self._generateListItem(aFilm)
             if list_item is None:
                 continue
+            image = knownImages.get(element[8])
+            if image:
+                list_item.setArt({'thumb': image, 'fanart': image})
             #
             list_item.addContextMenuItems(self._generateContextMenu(aFilm))
             #
@@ -88,6 +92,20 @@ class FilmlistUi(object):
         self.plugin.setViewId(self.plugin.resolveViewId('LIST'))
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
+
+    def _knownImages(self, databaseRs):
+        """ {video url: image} of the images the TV interface found already """
+        try:
+            from resources.lib import images
+            if appContext.ADDONCLASS.getSetting('tvimages') == 'false':
+                return {}
+            keys = dict((images.video_key(row[8]), row[8]) for row in databaseRs if row[8])
+            known, _ = images.ImageStore(self.settings.getDatapath()).cached(list(keys))
+            return dict((keys[key], image) for key, image in known.items())
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.error('Images: {}', err)
+            return {}
 
     def _generateListItem(self, pFilm):
         #

@@ -131,6 +131,17 @@ def shade(width, height, radius):
     return pixel
 
 
+def photo_shade(width, height, radius):
+    """Overlay of tiles with an image: darker at the top for the logo and at the bottom for the title"""
+    def pixel(x, y):
+        coverage = rounded_coverage(x, y, width, height, radius)
+        t = y / float(height - 1)
+        alpha = max(0.0, (0.3 - t) / 0.3) ** 1.5 * 0.45 + max(0.0, (t - 0.3) / 0.7) ** 1.3 * 0.85
+        return 0, 0, 0, int(round(255 * coverage * min(alpha, 1.0)))
+
+    return pixel
+
+
 def glow(size):
     """Radial gradient, tinted with the channel colour behind the preview"""
     centre = (size - 1) / 2.0
@@ -156,6 +167,13 @@ def generate_textures():
     write_png(os.path.join(MEDIA, 'mv_shade.png'), THUMB_WIDTH, THUMB_HEIGHT, shade(THUMB_WIDTH, THUMB_HEIGHT, 10))
     write_png(os.path.join(MEDIA, 'mv_shade_grid.png'), GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT,
               shade(GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 10))
+    write_png(os.path.join(MEDIA, 'mv_photo_shade.png'), THUMB_WIDTH, THUMB_HEIGHT, photo_shade(THUMB_WIDTH, THUMB_HEIGHT, 10))
+    write_png(os.path.join(MEDIA, 'mv_photo_shade_grid.png'), GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT,
+              photo_shade(GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 10))
+    # alpha masks for rounded images
+    write_png(os.path.join(MEDIA, 'mv_mask.png'), THUMB_WIDTH, THUMB_HEIGHT, rounded(THUMB_WIDTH, THUMB_HEIGHT, 10))
+    write_png(os.path.join(MEDIA, 'mv_mask_grid.png'), GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT,
+              rounded(GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 10))
     write_png(os.path.join(MEDIA, 'mv_glow.png'), 256, 256, glow(256))
     # gradients blending the preview into the background
     write_png(os.path.join(MEDIA, 'mv_gradient_left.png'), 256, 4, lambda x, y: (r, g, b, int(255 * (1 - x / 255.0) ** 1.3)))
@@ -251,7 +269,20 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
             <control type="image">
                 <left>{tl}</left><top>{tt}</top><width>{tw}</width><height>{th}</height>
                 <texture>{shade}</texture>
-                <visible>{card}</visible>
+                <visible>{card} + String.IsEmpty(ListItem.Property(image))</visible>
+            </control>
+            <control type="group">
+                <visible>{film_or_show} + !String.IsEmpty(ListItem.Property(image))</visible>
+                <control type="image">
+                    <left>{tl}</left><top>{tt}</top><width>{tw}</width><height>{th}</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="{mask}">$INFO[ListItem.Property(image)]</texture>
+                </control>
+                <control type="image">
+                    <left>{tl}</left><top>{tt}</top><width>{tw}</width><height>{th}</height>
+                    <texture>{photo_shade}</texture>
+                </control>
             </control>
             <control type="group">
                 <visible>{film_or_show}</visible>
@@ -379,6 +410,8 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
             {focus_ring}{below}
         </control>'''.format(
         zoom=zoom, focus_ring=focus_ring, below=below, shade=shade_texture,
+        mask='mv_mask_grid.png' if small else 'mv_mask.png',
+        photo_shade='mv_photo_shade_grid.png' if small else 'mv_photo_shade.png',
         card=is_kind(*CARD_KINDS), film=is_kind('film'), show=is_kind('show'), letter=is_kind('letter'),
         film_or_show=is_kind('film', 'show'), live_or_channel=is_kind('live', 'channel'), text_tile=is_kind(*TEXT_KINDS),
         tl=THUMB_LEFT, tt=THUMB_TOP, tw=thumb_width, th=thumb_height,
@@ -386,7 +419,8 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
         lt=THUMB_TOP + pad - 2, lw=int(thumb_width * 0.42), lh=logo_height,
         st=THUMB_TOP + thumb_height - (122 if not small else 114),
         ft=THUMB_TOP + thumb_height - (94 if not small else 88), fh=76 if not small else 72,
-        bt=THUMB_TOP + pad + logo_height + 6, bh=thumb_height - 2 * pad - logo_height - 6,
+        # show names at the bottom like the titles of films, where the tile is darkened
+        bt=THUMB_TOP + thumb_height - (122 if not small else 114), bh=(122 if not small else 114) - 12,
         cl=THUMB_LEFT + thumb_width // 5, ct=THUMB_TOP + thumb_height // 4, cw=thumb_width * 3 // 5, ch=thumb_height // 2,
         prt=THUMB_TOP + thumb_height - 12,
         badge_left=THUMB_LEFT + thumb_width - 76 - 12, badge_top=THUMB_TOP + 12,
@@ -484,21 +518,28 @@ BACKDROP_TEMPLATE = '''
                 <left>{glow_left}</left><top>-330</top><width>1560</width><height>1240</height>
                 <fadetime>300</fadetime>
                 <texture colordiffuse="{color}">mv_glow.png</texture>
-                <visible>!Player.HasVideo + !String.IsEmpty({color_info})</visible>
+                <visible>!Player.HasVideo + !String.IsEmpty({color_info}) + String.IsEmpty({image_info})</visible>
             </control>
             <control type="image">
                 <left>1140</left><top>150</top><width>640</width><height>260</height>
                 <aspectratio>keep</aspectratio>
                 <fadetime>300</fadetime>
                 <texture background="true" colordiffuse="38FFFFFF">{logo}</texture>
-                <visible>!Player.HasVideo</visible>
+                <visible>!Player.HasVideo + String.IsEmpty({image_info})</visible>
+            </control>
+            <control type="image">
+                <left>{video_left}</left><top>0</top><width>{video_width}</width><height>{video_height}</height>
+                <aspectratio>scale</aspectratio>
+                <fadetime>300</fadetime>
+                <texture background="true">{image}</texture>
+                <visible>!Player.HasVideo + !String.IsEmpty({image_info})</visible>
             </control>
             <control type="videowindow">
                 <left>{video_left}</left><top>0</top><width>{video_width}</width><height>{video_height}</height>
                 <visible>Player.HasVideo</visible>
             </control>
             <control type="group">
-                <visible>Player.HasVideo</visible>
+                <visible>Player.HasVideo | !String.IsEmpty({image_info})</visible>
                 <control type="image">
                     <left>{video_left}</left><top>0</top><width>{gradient_width}</width><height>{video_height}</height>
                     <texture>mv_gradient_left.png</texture>
@@ -514,16 +555,15 @@ BACKDROP_TEMPLATE = '''
             </control>'''
 
 
-def backdrop(color_info, logo_info, detail=False):
-    """color_info and logo_info are info labels, e.g. ListItem.Property(color)"""
-    color, logo = '$INFO[%s]' % color_info, '$INFO[%s]' % logo_info
+def backdrop(color_info, logo_info, image_info, detail=False):
+    """color_info, logo_info and image_info are info labels, e.g. ListItem.Property(color)"""
+    labels = dict(color='$INFO[%s]' % color_info, color_info=color_info, logo='$INFO[%s]' % logo_info,
+                  image='$INFO[%s]' % image_info, image_info=image_info)
     if detail:
-        return BACKDROP_TEMPLATE.format(color=color, color_info=color_info, logo=logo, glow_left=500, video_left=420,
-                                        video_width=1500, video_height=844, gradient_width=900, bottom_top=480,
-                                        bottom_height=364)
-    return BACKDROP_TEMPLATE.format(color=color, color_info=color_info, logo=logo, glow_left=560, video_left=560,
-                                    video_width=1360, video_height=765, gradient_width=800, bottom_top=400,
-                                    bottom_height=365)
+        return BACKDROP_TEMPLATE.format(glow_left=500, video_left=420, video_width=1500, video_height=844,
+                                        gradient_width=900, bottom_top=480, bottom_height=364, **labels)
+    return BACKDROP_TEMPLATE.format(glow_left=560, video_left=560, video_width=1360, video_height=765,
+                                    gradient_width=800, bottom_top=400, bottom_height=365, **labels)
 
 
 PREVIEW_TEMPLATE = '''        <!-- Preview of the focused tile on tabs and channel pages -->
@@ -779,14 +819,16 @@ def preview():
         parts.append(PREVIEW_TEMPLATE.format(
             visible=visible, li=prefix, text=TEXT, dim=TEXT_DIM, message=MESSAGE,
             text_tiles=is_kind(*TEXT_KINDS, prefix=prefix)[1:-1],
-            backdrop=backdrop('%sListItem.Property(color)' % prefix, '%sListItem.Property(logo)' % prefix)))
+            backdrop=backdrop('%sListItem.Property(color)' % prefix, '%sListItem.Property(logo)' % prefix,
+                              '%sListItem.Property(image)' % prefix)))
     return ''.join(parts)
 
 
 def generate_window():
     xml = WINDOW_TEMPLATE.format(
         preview=preview(),
-        detail_backdrop=backdrop('Window.Property(detail_color)', 'Window.Property(detail_logo)', detail=True),
+        detail_backdrop=backdrop('Window.Property(detail_color)', 'Window.Property(detail_logo)',
+                                 'Window.Property(detail_image)', detail=True),
         background=BACKGROUND,
         background_rgb=BACKGROUND[2:],
         grid_view='String.IsEqual(Window.Property(view),grid)',

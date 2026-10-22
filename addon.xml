@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3~tv3"
+	version="1.1.3~tv4"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -34,6 +34,8 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv4 (2026-10-22):
+- [new] TV interface: preview images from the websites of the media libraries
 v.1.1.3~tv3 (2026-10-22):
 - [fix] Windows: lists with films of unknown air date stayed empty (e.g. channel ARD, shows starting with S or R)
 - [new] TV interface: search and start letters within a channel

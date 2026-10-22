@@ -383,6 +383,10 @@ msgctxt "#30603"
 msgid "Hide versions with audio description and sign language"
 msgstr ""
 
+msgctxt "#30604"
+msgid "Load preview images from the websites of the media libraries (downloads the full film list weekly, about 80 MB)"
+msgstr ""
+
 msgctxt "#30610"
 msgid "Home"
 msgstr ""

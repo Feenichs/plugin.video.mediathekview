@@ -6,9 +6,12 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
 - Tab-Leiste: *Startseite*, *Live*, *Sender*, *A–Z*, *Suche* und *Mehr*
 - Startseite mit Reihen: *Weiterschauen*, *Neu in den Mediatheken*, *Jetzt live*, *Spielfilme*, *Krimis*,
   *Dokus und Reportagen*, *Sendungen mit neuen Folgen*, *Neu bei ARD/ZDF/arte/3sat*
-- Große Vorschau des ausgewählten Videos (Sendung, Titel, Sender, Sendezeit, Dauer, HD/UT, Beschreibung) in der
-  Farbe des Senders. Die Datenbank von MediathekView enthält keine Vorschaubilder, die Kacheln zeigen deshalb Logo
-  und Farbe des Senders mit Sendung und Titel
+- Große Vorschau des ausgewählten Videos (Bild, Sendung, Titel, Sender, Sendezeit, Dauer, HD/UT, Beschreibung)
+- Vorschaubilder von den Webseiten der Mediatheken (ARD-Mediathek, ZDF, 3sat, arte, KiKA, ORF, SRF, DW u. a.): die
+  Datenbank von MediathekView enthält keine Bilder, der Service legt deshalb aus der Filmliste einen Index der
+  Webseiten an (vollständige Liste wöchentlich, ca. 80 MB, Änderungen stündlich). Videos ohne Bild bekommen das Bild
+  einer anderen Folge oder eine Kachel in Farbe und mit Logo des Senders. Abschaltbar in den Einstellungen
+- Sender-Seiten mit Suche und Filter nach Anfangsbuchstaben
 - Detailseite: Abspielen bzw. Fortsetzen/von vorne, mit Untertiteln, Qualität wählen (HD, normal, klein),
   herunterladen, alle Folgen und eine Reihe mit weiteren Folgen der Sendung
 - *Weiterschauen*: die Position wird gespeichert, Fortschrittsbalken auf den Kacheln
@@ -26,8 +29,8 @@ bei Videos ohne URL, fehlerhafte NFO-Dateien und Download-Dateinamen, Downloads 
 Senderlogos u. a.
 
 **English:** This fork of the [MediathekView add-on](https://github.com/mediathekview/plugin.video.mediathekview)
-adds an interface like the media library apps on Fire TV, made for remote controls: a tab bar, rows of tiles in the
-colours of the channels with a large preview, detail pages with more episodes, "continue watching" with saved
+adds an interface like the media library apps on Fire TV, made for remote controls: a tab bar, rows of tiles with
+preview images from the websites of the media libraries and a large preview, detail pages with more episodes, "continue watching" with saved
 positions, grouped livestreams, channel pages, shows from A to Z and search. It also fixes several bugs of the
 original; among others videos without HD played in the smallest instead of the normal quality, air times were one
 hour early during daylight saving time and every view read the whole database because it had no indexes.
@@ -36,9 +39,9 @@ hour early during daylight saving time and every view read the whole database be
 
 ![Detail page](screenshots/tv-detail.jpg)
 
-![Shows from A to Z](screenshots/tv-a-z.jpg)
+![Channel page](screenshots/tv-channel.jpg)
 
-![Livestreams](screenshots/tv-live.jpg)
+![Shows from A to Z](screenshots/tv-a-z.jpg)
 
 ## Installation
 
@@ -57,6 +60,9 @@ version with an update of the original add-on; disable automatic updates for the
   cropped from `resources/icons` with Pillow).
 - After the update the service adds indexes to an existing database once (a few seconds), a downloaded database gets
   them after every download.
+- Preview images: the service downloads the full film list (about 80 MB) once a week and the list of changes every
+  hour for an index of the websites (websites.db, about 90 MB in the profile of the add-on); images found are kept in
+  images.db. The images are looked up when their tiles are shown, the first time a row takes a few seconds.
 
 This is an unofficial fork and not endorsed by MediathekView.de or the original authors.
 

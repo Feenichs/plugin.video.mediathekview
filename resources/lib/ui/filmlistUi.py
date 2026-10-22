@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 import time
 import os
 from datetime import datetime
-from datetime import timedelta
 # pylint: disable=import-error
 import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
+import resources.lib.mvutils as mvutils
 from resources.lib.model.film import Film
 
 
@@ -46,8 +46,6 @@ class FilmlistUi(object):
         self.sortmethods = allSortMethods
         #
         self.startTime = 0
-        self.tzDiff = datetime.now() - datetime.utcnow()
-        self.tzBase = datetime.fromtimestamp(0)
 
     def generate(self, databaseRs):
         #
@@ -69,6 +67,8 @@ class FilmlistUi(object):
                         element[6], element[7], element[8], element[9], element[10])
             #
             (targetUrl, list_item) = self._generateListItem(aFilm)
+            if list_item is None:
+                continue
             #
             list_item.addContextMenuItems(self._generateContextMenu(aFilm))
             #
@@ -94,17 +94,16 @@ class FilmlistUi(object):
     def _generateListItem(self, pFilm):
         #
         videohds = ""
-        if (pFilm.url_video_hd != "" and self.settings.getPreferHd()):
+        # url_video is the normal quality, url_video_sd the small one
+        if pFilm.url_video_hd and self.settings.getPreferHd():
             videourl = pFilm.url_video_hd
             videohds = " (HD)"
-        elif (pFilm.url_video_sd != ""):
-            videourl = pFilm.url_video_sd
         else:
-            videourl = pFilm.url_video
+            videourl = mvutils.first_url(pFilm.url_video, pFilm.url_video_sd, pFilm.url_video_hd)
 
         # exit if no url supplied
-        if videourl == "":
-            return None
+        if not videourl:
+            return (None, None)
 
         videourl = videourl + self.settings.getUserAgentString()
 
@@ -123,28 +122,16 @@ class FilmlistUi(object):
         if pFilm.seconds is not None and pFilm.seconds > 0:
             info_labels['duration'] = pFilm.seconds
 
-        if pFilm.aired is not None and pFilm.aired != 0:
-            ndate = self.tzBase + timedelta(seconds=(pFilm.aired))
-            airedstring = ndate.isoformat().replace('T', ' ')
+        if pFilm.aired:
+            # local time including daylight saving time
+            airedstring = datetime.fromtimestamp(pFilm.aired).isoformat().replace('T', ' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]
             info_labels['dateadded'] = airedstring
             info_labels['plot'] = self.plugin.language(30990).format(airedstring) + info_labels['plot']
 
-        icon = os.path.join(
-            self.plugin.path,
-            'resources',
-            'icons',
-            'sender',
-            pFilm.channel.lower() + '-i.png'
-        )
-        fanart = os.path.join(
-            self.plugin.path,
-            'resources',
-            'icons',
-            'sender',
-            pFilm.channel.lower() + '-f.png'
-        )
+        icon = mvutils.channel_icon(self.plugin.path, pFilm.channel, '-i.png')
+        fanart = mvutils.channel_icon(self.plugin.path, pFilm.channel, '-f.png')
 
         #
         if self.plugin.get_kodi_version() > 17:

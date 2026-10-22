@@ -42,7 +42,41 @@ PY2 = sys.version_info[0] == 2
 
 
 def coalesce(*arg):
-  return reduce(lambda x, y: x if x is not None else y, arg)
+    """ Returns the first argument that is neither None nor empty """
+    return reduce(lambda x, y: x if x else y, arg)
+
+
+def first_url(*urls):
+    """ Returns the first non empty url or an empty string """
+    return next((url for url in urls if url), '')
+
+
+# channels without an icon of their own in resources/icons/sender
+CHANNEL_ICON_ALIASES = {
+    'zdfinfo': ('livestream', 'zdf.info'),
+    'zdfneo': ('livestream', 'zdf.neo'),
+    'tagesschau24': ('livestream', 'tagesschau24'),
+    'ard alpha': ('sender', 'ard-alpha'),
+    'arte': ('sender', 'arte.de'),
+}
+
+
+_CHANNEL_ICONS = {}
+
+
+def channel_icon(addonPath, channel, suffix):
+    """
+    Path of the icon (suffix '-i.png') or the fanart (suffix '-f.png')
+    of a channel, falls back to a generic icon for unknown channels
+    """
+    key = (addonPath, (channel or '').lower(), suffix)
+    if key not in _CHANNEL_ICONS:
+        folder, name = CHANNEL_ICON_ALIASES.get(key[1], ('sender', key[1]))
+        path = os.path.join(addonPath, 'resources', 'icons', folder, name + suffix)
+        if not name or not file_exists(path):
+            path = os.path.join(addonPath, 'resources', 'icons', 'default2' + ('-f.png' if suffix == '-f.png' else '-m.png'))
+        _CHANNEL_ICONS[key] = path
+    return _CHANNEL_ICONS[key]
 
 
 def py2_encode(s, encoding='utf-8'):
@@ -96,6 +130,8 @@ def dict_to_utf(d):
     return dutf
 
 def unixtimestamp2iso(uxtimestamp):
+    if not uxtimestamp:
+        return None
     return datetime.datetime.fromtimestamp(uxtimestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 def dir_exists(name):

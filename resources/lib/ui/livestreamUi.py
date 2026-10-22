@@ -8,12 +8,11 @@ SPDX-License-Identifier: MIT
 
 import time
 import os
-from datetime import datetime
-from datetime import timedelta
 # pylint: disable=import-error
 import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
+import resources.lib.mvutils as mvutils
 from resources.lib.model.livestream import Livestream
 
 
@@ -69,8 +68,7 @@ class LivestreamUi(object):
             }
             #
             livestreamName = livestreamModel.name.replace(' ', '')
-            fanArt = self._findIconName(livestreamModel.channel, livestreamName) + '-f.png'
-            icon = self._findIconName(livestreamModel.channel, livestreamName) + '-i.png'
+            (icon, fanArt) = self._findIconName(livestreamModel.channel, livestreamName)
             #
             if self.plugin.get_kodi_version() > 17:
                 listitem = xbmcgui.ListItem(label=livestreamModel.name, path=videourl, offscreen=True)
@@ -143,12 +141,6 @@ class LivestreamUi(object):
                 'livestream',
                 altPath,
             )
-        else:
-            altPath = os.path.join(
-                self.plugin.path,
-                'resources',
-                'icons',
-                'sender',
-                pchannel.lower(),
-            )
-        return altPath
+            return (altPath + '-i.png', altPath + '-f.png')
+        return (mvutils.channel_icon(self.plugin.path, pchannel, '-i.png'),
+                mvutils.channel_icon(self.plugin.path, pchannel, '-f.png'))

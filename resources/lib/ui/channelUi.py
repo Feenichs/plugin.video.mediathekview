@@ -60,20 +60,8 @@ class ChannelUi(object):
             else:
                 list_item = xbmcgui.ListItem(label=labelname)
             #
-            icon = os.path.join(
-                self.plugin.path,
-                'resources',
-                'icons',
-                'sender',
-                channelModel.channelId.lower() + '-i.png'
-            )
-            fanart = os.path.join(
-                self.plugin.path,
-                'resources',
-                'icons',
-                'sender',
-                channelModel.channelId.lower() + '-f.png'
-            )
+            icon = mvutils.channel_icon(self.plugin.path, channelModel.channelId, '-i.png')
+            fanart = mvutils.channel_icon(self.plugin.path, channelModel.channelId, '-f.png')
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,

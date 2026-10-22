@@ -51,20 +51,8 @@ class ShowUi(object):
             #
             if element[1].find(',') == -1:
                 nameLabel = element[2];
-                icon = os.path.join(
-                    self.plugin.path,
-                    'resources',
-                    'icons',
-                    'sender',
-                    element[1].lower() + '-i.png'
-                )
-                fanart = os.path.join(
-                    self.plugin.path,
-                    'resources',
-                    'icons',
-                    'sender',
-                    element[1].lower() + '-f.png'
-                )
+                icon = mvutils.channel_icon(self.plugin.path, element[1], '-i.png')
+                fanart = mvutils.channel_icon(self.plugin.path, element[1], '-f.png')
             else:
                 nameLabel = element[2] + ' [' + element[3] + ']';
                 icon = os.path.join(
@@ -101,7 +89,7 @@ class ShowUi(object):
             targetUrl = mvutils.build_url({
                 'mode': 'films',
                 'channel' : element[1].replace(',', '|'),
-                'show': element[0]
+                'show': element[0].replace(',', '|')
             })
             #
             contextmenu = []
@@ -111,7 +99,7 @@ class ShowUi(object):
                 self.plugin.build_url({
                     'mode': "downloadmv",
                     'channel' : element[1].replace(',', '|'),
-                    'show': element[0]
+                    'show': element[0].replace(',', '|')
                 })
             )
             ))
@@ -122,7 +110,7 @@ class ShowUi(object):
                     self.plugin.build_url({
                         'mode': "downloadep",
                         'channel' : element[1].replace(',', '|'),
-                        'show': element[0]
+                        'show': element[0].replace(',', '|')
                     })
                 )
             ))

@@ -7,7 +7,6 @@ Copyright 2017-2019, Leo Moll and Dominik Schlösser
 # pylint: disable=too-many-lines,line-too-long
 
 import time
-import mysql.connector
 
 import resources.lib.mvutils as mvutils
 import resources.lib.appContext as appContext
@@ -34,6 +33,8 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
 
     def getConnection(self):
         if self.conn is None:
+            # imported here, the SQLite users do not need the connector
+            import mysql.connector
             self.logger.debug('Using MySQL connector version {}',
                              mysql.connector.__version__)
             # TODO Kodi 19 - we can update to mysql connector which supports auth_plugin parameter
@@ -94,6 +95,15 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
         aStmt = super(StoreMySQL, self).getImportPreparedStmtUpdate()
         aStmt = aStmt.replace('?', '%s')
         return aStmt
+
+    def ensureIndexes(self):
+        """ Indexes for the queries of the views, databases set up by older versions have none """
+        existing = [row[0] for row in self.execute(
+            "SELECT DISTINCT index_name FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'film'")]
+        for name, columns in (('idx_channel_aired', 'channel, aired'), ('idx_showid', 'showid')):
+            if name not in existing:
+                self.logger.info('Creating index {}', name)
+                self.executeUpdate('CREATE INDEX {} ON film ({})'.format(name, columns), None)
 
     def exit(self):
         if self.conn is not None:

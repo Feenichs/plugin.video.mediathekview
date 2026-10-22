@@ -648,6 +648,14 @@ msgctxt "#30696"
 msgid "Sun"
 msgstr ""
 
+msgctxt "#30697"
+msgid "1 video"
+msgstr ""
+
+msgctxt "#30698"
+msgid "1 show"
+msgstr ""
+
 msgctxt "#30901"
 msgid "Quick Search"
 msgstr "Quick Search"

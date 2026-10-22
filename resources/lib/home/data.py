@@ -42,13 +42,17 @@ SHOW_MAX_ITEMS = 500
 HOME_MIN_DURATION = 300
 HISTORY_MAX_ITEMS = 60
 
-# titles of the film tiles: (font size, width) in pixels of the skin; Kodi cannot tell how many
+# titles of the tiles: (font size, width, bold) in pixels of the skin; Kodi cannot tell how many
 # lines a text takes, the titles are wrapped here and the skin places them by their number of lines
-TITLE_ROW = (30, 348)
-TITLE_GRID = (25, 304)
+TITLE_ROW = (30, 348, False)
+TITLE_GRID = (25, 304, False)
+SHOW_TITLE_ROW = (33, 348, True)
+SHOW_TITLE_GRID = (30, 304, True)
 TITLE_MAX_LINES = 3
-# Kodi draws Noto Sans about 3.6 % narrower than its nominal widths (measured on screenshots)
+# Kodi draws Noto Sans about 3.6 % narrower than its nominal widths, its synthetic bold adds
+# about 3.2 % of the font size to every character (measured on screenshots)
 TEXT_SCALE = 0.965
+BOLD_EXTRA = 32
 
 # Colour (RRGGBB) and logo of the channels, the logo files are generated from
 # resources/icons by .scripts/generate_home_window.py
@@ -329,7 +333,7 @@ def letters(db, channel=None):
                       % (LETTER_CASE, where, LETTER_CASE, LETTER_CASE), params)
     color = channel_info(channel)[1] if channel else ''
     return [make_item(KIND_LETTER, letter, letter=letter, channel=channel or '', channels=[channel] if channel else [],
-                      color=color, subtitle=_language(30684) % format_count(count)) for letter, count in rows]
+                      color=color, subtitle=count_text(count, 30684, 30698)) for letter, count in rows]
 
 
 def letter_shows(db, letter, channel=None):
@@ -376,9 +380,12 @@ def make_item(kind, label, **kwargs):
     return item
 
 
-def text_width(text, size):
+def text_width(text, size, bold=False):
     widths = fontwidths.WIDTHS
-    return sum(widths.get(ord(char), fontwidths.DEFAULT) for char in text) * size * TEXT_SCALE / 1000.0
+    width = sum(widths.get(ord(char), fontwidths.DEFAULT) for char in text) * TEXT_SCALE
+    if bold:
+        width += BOLD_EXTRA * len(text)
+    return width * size / 1000.0
 
 
 def wrap_title(text, font, max_lines=TITLE_MAX_LINES):
@@ -386,21 +393,21 @@ def wrap_title(text, font, max_lines=TITLE_MAX_LINES):
     Lines of a title on a tile: wrapped at spaces like Kodi does, a word wider than the
     tile is hyphenated, a title longer than max_lines ends with an ellipsis
     """
-    size, width = font
+    size, width, bold = font
     lines = []
     line = ''
     for word in (text or '').split():
         candidate = line + ' ' + word if line else word
-        if text_width(candidate, size) <= width:
+        if text_width(candidate, size, bold) <= width:
             line = candidate
             continue
         if line:
             lines.append(line)
         line = word
-        while text_width(line, size) > width:
+        while text_width(line, size, bold) > width:
             # at least three letters on the next line
             cut = len(line) - 3
-            while cut > 3 and text_width(line[:cut] + '-', size) > width:
+            while cut > 3 and text_width(line[:cut] + '-', size, bold) > width:
                 cut -= 1
             lines.append(line[:cut] + '-')
             line = line[cut:]
@@ -408,9 +415,9 @@ def wrap_title(text, font, max_lines=TITLE_MAX_LINES):
         lines.append(line)
     if len(lines) > max_lines:
         last = lines[max_lines - 1]
-        while ' ' in last and text_width(last + '\u2026', size) > width:
+        while ' ' in last and text_width(last + '\u2026', size, bold) > width:
             last = last.rsplit(' ', 1)[0]
-        while last and text_width(last + '\u2026', size) > width:
+        while last and text_width(last + '\u2026', size, bold) > width:
             last = last[:-1]
         lines = lines[:max_lines - 1] + [last.rstrip(' -,.:;\u2013') + '\u2026']
     return lines
@@ -516,9 +523,14 @@ def format_count(count):
     return '{:,}'.format(int(count or 0)).replace(',', '.')
 
 
+def count_text(count, many_id, one_id):
+    """ "1 video" or "150.662 videos" """
+    return _language(one_id) if count == 1 else _language(many_id) % format_count(count)
+
+
 def channel_item(channel, count):
     name, color, logo = channel_info(channel)
-    videos = _language(30686) % format_count(count)
+    videos = count_text(count, 30686, 30697)
     return make_item(KIND_CHANNEL, name, channel=channel, channels=[channel], color=color, logo=logo,
                      subtitle='%s  ·  %s' % (name, videos), meta=videos)
 
@@ -533,8 +545,8 @@ def show_item(showids, name, channel_list, count, latest):
         color = 'FF' + DEFAULT_COLOR
     latest_text = _language(30687) % format_date(latest, with_time=False) if latest else ''
     return make_item(KIND_SHOW, name or '', show=name or '', showids=list(showids), channel=first, channels=channel_list,
-                     color=color, logo=logo, tile_top=names, subtitle=_language(30686) % format_count(count),
-                     meta='  ·  '.join(x for x in (names, _language(30686) % format_count(count), latest_text) if x))
+                     color=color, logo=logo, tile_top=names, subtitle=count_text(count, 30686, 30697),
+                     meta='  ·  '.join(x for x in (names, count_text(count, 30686, 30697), latest_text) if x))
 
 
 # ---------------------------------------------------------------------------

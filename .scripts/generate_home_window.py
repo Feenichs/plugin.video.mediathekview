@@ -53,6 +53,9 @@ TILE_HEIGHT = THUMB_TOP + THUMB_HEIGHT + 50
 TITLE_MAX_LINES = 3
 TITLE_LINE_ROW = 41
 TITLE_LINE_GRID = 34
+# names of the shows in bold: font14 (rows) and font13 (grid)
+SHOW_LINE_ROW = 45
+SHOW_LINE_GRID = 41
 
 # Tiles of the grid
 GRID_COLUMNS = 5
@@ -224,13 +227,16 @@ TEXT_KINDS = ('action', 'all', 'next', 'back')
 CARD_KINDS = ('film', 'live', 'channel', 'show', 'letter')
 
 
-def film_title_layout(lines, small, thumb_width, thumb_height, pad):
+def title_layout(kind, lines, small, thumb_width, thumb_height, pad):
     """
-    Show and title of a film tile for a title of that many lines, wrapped by the add-on
+    Title of a film or show tile for a title of that many lines, wrapped by the add-on
     (resources/lib/home/data.py: wrap_title): the title ends at the bottom of the tile, the
-    name of the show is right above it
+    name of the show of a film is right above it
     """
-    font, line_height = ('font12', TITLE_LINE_GRID) if small else ('font13', TITLE_LINE_ROW)
+    if kind == 'film':
+        font, line_height = ('font12', TITLE_LINE_GRID) if small else ('font13', TITLE_LINE_ROW)
+    else:
+        font, line_height = ('font13', SHOW_LINE_GRID) if small else ('font14', SHOW_LINE_ROW)
     # three lines need the space down to the bottom and up to the logo
     bottom = THUMB_TOP + thumb_height - (16 if small else 18) if lines < 3 else THUMB_TOP + thumb_height - (12 if small else 6)
     title_top = bottom - lines * line_height
@@ -240,25 +246,28 @@ def film_title_layout(lines, small, thumb_width, thumb_height, pad):
                     <left>{tl}</left><top>{tt}</top><width>{tw}</width><height>{th}</height>
                     <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
                 </control>'''.format(tl=THUMB_LEFT, tt=THUMB_TOP, tw=thumb_width, th=thumb_height) if lines == 3 else ''
-    return '''
-            <control type="group">
-                <visible>{film} + String.IsEqual(ListItem.Property(title_lines),{lines})</visible>{dim}
+    show = '''
                 <control type="label">
-                    <left>{left}</left><top>{show_top}</top><width>{width}</width><height>30</height>
+                    <left>{left}</left><top>{top}</top><width>{width}</width><height>30</height>
                     <font>font10</font>
                     <textcolor>D9FFFFFF</textcolor>
                     <label>$INFO[ListItem.Property(tile_top)]</label>
-                </control>
+                </control>'''.format(left=THUMB_LEFT + pad, top=title_top - (26 if small else 28),
+                                     width=thumb_width - 2 * pad) if kind == 'film' else ''
+    return '''
+            <control type="group">
+                <visible>{kind} + String.IsEqual(ListItem.Property(title_lines),{lines})</visible>{dim}{show}
                 <control type="textbox">
                     <left>{left}</left><top>{title_top}</top><width>{title_width}</width><height>{title_height}</height>
                     <font>{font}</font>
                     <textcolor>{text}</textcolor>
                     <shadowcolor>66000000</shadowcolor>
-                    <label>$INFO[ListItem.Property(title)]</label>
+                    <label>{bold}$INFO[ListItem.Property(title)]{bold_end}</label>
                 </control>
             </control>'''.format(
-        film=is_kind('film'), lines=lines, dim=dim, left=THUMB_LEFT + pad, width=thumb_width - 2 * pad,
-        show_top=title_top - (26 if small else 28), title_top=title_top, font=font, text=TEXT,
+        kind=is_kind(kind), lines=lines, dim=dim, show=show, left=THUMB_LEFT + pad,
+        bold='[B]' if kind == 'show' else '', bold_end='[/B]' if kind == 'show' else '',
+        title_top=title_top, font=font, text=TEXT,
         # wider than the wrapped lines, Kodi must not wrap them again
         title_width=thumb_width - 2 * pad + 12, title_height=lines * line_height + 6)
 
@@ -281,7 +290,9 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
     small = thumb_width < THUMB_WIDTH
     pad = 16 if small else 18
     logo_height = 34 if small else 40
-    film_title = ''.join(film_title_layout(lines, small, thumb_width, thumb_height, pad)
+    film_title = ''.join(title_layout('film', lines, small, thumb_width, thumb_height, pad)
+                         for lines in range(1, TITLE_MAX_LINES + 1))
+    show_title = ''.join(title_layout('show', lines, small, thumb_width, thumb_height, pad)
                          for lines in range(1, TITLE_MAX_LINES + 1))
     # line below the tile: the name of livestreams, date and duration of films, counts of the others
     below = '''
@@ -362,15 +373,7 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
                 </control>
             </control>
 {film_title}
-            <control type="textbox">
-                <left>{pl}</left><top>{bt}</top><width>{pw}</width><height>{bh}</height>
-                <aligny>bottom</aligny>
-                <font>font14</font>
-                <textcolor>{text}</textcolor>
-                <shadowcolor>66000000</shadowcolor>
-                <label>[B]$INFO[ListItem.Label][/B]</label>
-                <visible>{show}</visible>
-            </control>
+{show_title}
             <control type="group">
                 <visible>{live_or_channel}</visible>
                 <control type="image">
@@ -459,8 +462,7 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
         # a smaller logo leaves room for titles of three lines
         three_lines='String.IsEqual(ListItem.Property(title_lines),3)',
         lw3=int(thumb_width * 0.42) * (logo_height - 10) // logo_height, lh3=logo_height - 10,
-        # show names at the bottom like the titles of films, where the tile is darkened
-        bt=THUMB_TOP + thumb_height - (122 if not small else 114), bh=(122 if not small else 114) - 12,
+        show_title=show_title,
         cl=THUMB_LEFT + thumb_width // 5, ct=THUMB_TOP + thumb_height // 4, cw=thumb_width * 3 // 5, ch=thumb_height // 2,
         prt=THUMB_TOP + thumb_height - 12,
         badge_left=THUMB_LEFT + thumb_width - 76 - 12, badge_top=THUMB_TOP + 12,

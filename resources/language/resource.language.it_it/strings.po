@@ -649,6 +649,14 @@ msgctxt "#30696"
 msgid "Sun"
 msgstr "Dom"
 
+msgctxt "#30697"
+msgid "1 video"
+msgstr "1 video"
+
+msgctxt "#30698"
+msgid "1 show"
+msgstr "1 programma"
+
 msgctxt "#30901"
 msgid "Quick Search"
 msgstr "Ricerca Rapida"

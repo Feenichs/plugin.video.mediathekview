@@ -736,7 +736,9 @@ class HomeWindow(xbmcgui.WindowXML):
     def _add_items(self, control, items):
         """ Add the tiles with the images known already, the others are looked up in the background """
         missing = set(id(i) for i in data.attach_images(items))
-        list_items = [self._make_listitem(item) for item in items]
+        # tiles that get their image later must not be offscreen: Kodi only locks the GUI when
+        # an item that is not offscreen is changed, the image threads change them while they are shown
+        list_items = [self._make_listitem(item, offscreen=id(item) not in missing) for item in items]
         control.addItems(list_items)
         jobs = [(item, list_item) for item, list_item in zip(items, list_items) if id(item) in missing]
         if jobs:
@@ -751,8 +753,8 @@ class HomeWindow(xbmcgui.WindowXML):
         if self._detail and self._detail['film'] is item or list_item is None:
             self.setProperty('detail_image', image)
 
-    def _make_listitem(self, item):
-        list_item = xbmcgui.ListItem(label=item['label'], label2=item['subtitle'], offscreen=True)
+    def _make_listitem(self, item, offscreen=True):
+        list_item = xbmcgui.ListItem(label=item['label'], label2=item['subtitle'], offscreen=offscreen)
         list_item.setArt({'thumb': item['image'] or item['logo'], 'icon': item['logo'], 'fanart': item['image']})
         properties = {
             'kind': item['kind'],

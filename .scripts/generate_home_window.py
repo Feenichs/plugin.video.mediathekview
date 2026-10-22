@@ -49,6 +49,11 @@ THUMB_WIDTH = 384
 THUMB_HEIGHT = 216
 TILE_HEIGHT = THUMB_TOP + THUMB_HEIGHT + 50
 
+# Titles of the film tiles, wrapped by the add-on: line height of font13 (rows) and font12 (grid)
+TITLE_MAX_LINES = 3
+TITLE_LINE_ROW = 41
+TITLE_LINE_GRID = 34
+
 # Tiles of the grid
 GRID_COLUMNS = 5
 GRID_TILE_WIDTH = 360
@@ -219,6 +224,45 @@ TEXT_KINDS = ('action', 'all', 'next', 'back')
 CARD_KINDS = ('film', 'live', 'channel', 'show', 'letter')
 
 
+def film_title_layout(lines, small, thumb_width, thumb_height, pad):
+    """
+    Show and title of a film tile for a title of that many lines, wrapped by the add-on
+    (resources/lib/home/data.py: wrap_title): the title ends at the bottom of the tile, the
+    name of the show is right above it
+    """
+    font, line_height = ('font12', TITLE_LINE_GRID) if small else ('font13', TITLE_LINE_ROW)
+    # three lines need the space down to the bottom and up to the logo
+    bottom = THUMB_TOP + thumb_height - (16 if small else 18) if lines < 3 else THUMB_TOP + thumb_height - (12 if small else 6)
+    title_top = bottom - lines * line_height
+    # the shade of the image only darkens the lower part, three lines reach up into the bright part
+    dim = '''
+                <control type="image">
+                    <left>{tl}</left><top>{tt}</top><width>{tw}</width><height>{th}</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>'''.format(tl=THUMB_LEFT, tt=THUMB_TOP, tw=thumb_width, th=thumb_height) if lines == 3 else ''
+    return '''
+            <control type="group">
+                <visible>{film} + String.IsEqual(ListItem.Property(title_lines),{lines})</visible>{dim}
+                <control type="label">
+                    <left>{left}</left><top>{show_top}</top><width>{width}</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>{left}</left><top>{title_top}</top><width>{title_width}</width><height>{title_height}</height>
+                    <font>{font}</font>
+                    <textcolor>{text}</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>'''.format(
+        film=is_kind('film'), lines=lines, dim=dim, left=THUMB_LEFT + pad, width=thumb_width - 2 * pad,
+        show_top=title_top - (26 if small else 28), title_top=title_top, font=font, text=TEXT,
+        # wider than the wrapped lines, Kodi must not wrap them again
+        title_width=thumb_width - 2 * pad + 12, title_height=lines * line_height + 6)
+
+
 def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_texture):
     """Layout of one tile; list_id is used for focus dependent styling"""
     has_focus = 'Control.HasFocus(%d)' % list_id
@@ -237,6 +281,8 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
     small = thumb_width < THUMB_WIDTH
     pad = 16 if small else 18
     logo_height = 34 if small else 40
+    film_title = ''.join(film_title_layout(lines, small, thumb_width, thumb_height, pad)
+                         for lines in range(1, TITLE_MAX_LINES + 1))
     # line below the tile: the name of livestreams, date and duration of films, counts of the others
     below = '''
             <control type="label">
@@ -290,6 +336,13 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
                     <left>{pl}</left><top>{lt}</top><width>{lw}</width><height>{lh}</height>
                     <aspectratio align="left" aligny="top">keep</aspectratio>
                     <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>!{three_lines}</visible>
+                </control>
+                <control type="image">
+                    <left>{pl}</left><top>{lt}</top><width>{lw3}</width><height>{lh3}</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>{three_lines}</visible>
                 </control>
                 <control type="label">
                     <left>{pl}</left><top>{lt}</top><width>{pw}</width><height>{lh}</height>
@@ -308,22 +361,7 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
                     <visible>String.IsEmpty(ListItem.Property(logo_small)) + {show}</visible>
                 </control>
             </control>
-            <control type="group">
-                <visible>{film}</visible>
-                <control type="label">
-                    <left>{pl}</left><top>{st}</top><width>{pw}</width><height>30</height>
-                    <font>font10</font>
-                    <textcolor>D9FFFFFF</textcolor>
-                    <label>$INFO[ListItem.Property(tile_top)]</label>
-                </control>
-                <control type="textbox">
-                    <left>{pl}</left><top>{ft}</top><width>{pw}</width><height>{fh}</height>
-                    <font>{ff}</font>
-                    <textcolor>{text}</textcolor>
-                    <shadowcolor>66000000</shadowcolor>
-                    <label>$INFO[ListItem.Label]</label>
-                </control>
-            </control>
+{film_title}
             <control type="textbox">
                 <left>{pl}</left><top>{bt}</top><width>{pw}</width><height>{bh}</height>
                 <aligny>bottom</aligny>
@@ -417,10 +455,10 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
         tl=THUMB_LEFT, tt=THUMB_TOP, tw=thumb_width, th=thumb_height,
         pl=THUMB_LEFT + pad, pw=thumb_width - 2 * pad,
         lt=THUMB_TOP + pad - 2, lw=int(thumb_width * 0.42), lh=logo_height,
-        # titles get two full lines (font13 about 41 px per line, font12 about 35), a third one is cut off
-        st=THUMB_TOP + thumb_height - (130 if not small else 114),
-        ft=THUMB_TOP + thumb_height - (102 if not small else 88), fh=84 if not small else 72,
-        ff='font13' if not small else 'font12',
+        film_title=film_title,
+        # a smaller logo leaves room for titles of three lines
+        three_lines='String.IsEqual(ListItem.Property(title_lines),3)',
+        lw3=int(thumb_width * 0.42) * (logo_height - 10) // logo_height, lh3=logo_height - 10,
         # show names at the bottom like the titles of films, where the tile is darkened
         bt=THUMB_TOP + thumb_height - (122 if not small else 114), bh=(122 if not small else 114) - 12,
         cl=THUMB_LEFT + thumb_width // 5, ct=THUMB_TOP + thumb_height // 4, cw=thumb_width * 3 // 5, ch=thumb_height // 2,

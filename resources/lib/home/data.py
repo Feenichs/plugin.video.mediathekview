@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 import resources.lib.appContext as appContext
 import resources.lib.mvutils as mvutils
 import resources.lib.extendedSearchModel as ExtendedSearchModel
+from resources.lib.home import fontwidths
 
 try:
     from resources.lib import images
@@ -40,6 +41,14 @@ SHOW_MAX_ITEMS = 500
 # rows of the home tab skip short clips like trailers and weather reports
 HOME_MIN_DURATION = 300
 HISTORY_MAX_ITEMS = 60
+
+# titles of the film tiles: (font size, width) in pixels of the skin; Kodi cannot tell how many
+# lines a text takes, the titles are wrapped here and the skin places them by their number of lines
+TITLE_ROW = (30, 348)
+TITLE_GRID = (25, 304)
+TITLE_MAX_LINES = 3
+# Kodi draws Noto Sans about 3.6 % narrower than its nominal widths (measured on screenshots)
+TEXT_SCALE = 0.965
 
 # Colour (RRGGBB) and logo of the channels, the logo files are generated from
 # resources/icons by .scripts/generate_home_window.py
@@ -365,6 +374,46 @@ def make_item(kind, label, **kwargs):
     }
     item.update(kwargs)
     return item
+
+
+def text_width(text, size):
+    widths = fontwidths.WIDTHS
+    return sum(widths.get(ord(char), fontwidths.DEFAULT) for char in text) * size * TEXT_SCALE / 1000.0
+
+
+def wrap_title(text, font, max_lines=TITLE_MAX_LINES):
+    """
+    Lines of a title on a tile: wrapped at spaces like Kodi does, a word wider than the
+    tile is hyphenated, a title longer than max_lines ends with an ellipsis
+    """
+    size, width = font
+    lines = []
+    line = ''
+    for word in (text or '').split():
+        candidate = line + ' ' + word if line else word
+        if text_width(candidate, size) <= width:
+            line = candidate
+            continue
+        if line:
+            lines.append(line)
+        line = word
+        while text_width(line, size) > width:
+            # at least three letters on the next line
+            cut = len(line) - 3
+            while cut > 3 and text_width(line[:cut] + '-', size) > width:
+                cut -= 1
+            lines.append(line[:cut] + '-')
+            line = line[cut:]
+    if line:
+        lines.append(line)
+    if len(lines) > max_lines:
+        last = lines[max_lines - 1]
+        while ' ' in last and text_width(last + '\u2026', size) > width:
+            last = last.rsplit(' ', 1)[0]
+        while last and text_width(last + '\u2026', size) > width:
+            last = last[:-1]
+        lines = lines[:max_lines - 1] + [last.rstrip(' -,.:;\u2013') + '\u2026']
+    return lines
 
 
 def channel_info(channel):

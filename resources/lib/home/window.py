@@ -736,9 +736,10 @@ class HomeWindow(xbmcgui.WindowXML):
     def _add_items(self, control, items):
         """ Add the tiles with the images known already, the others are looked up in the background """
         missing = set(id(i) for i in data.attach_images(items))
+        title_font = data.TITLE_GRID if control.getId() == GRID_PANEL else data.TITLE_ROW
         # tiles that get their image later must not be offscreen: Kodi only locks the GUI when
         # an item that is not offscreen is changed, the image threads change them while they are shown
-        list_items = [self._make_listitem(item, offscreen=id(item) not in missing) for item in items]
+        list_items = [self._make_listitem(item, title_font, offscreen=id(item) not in missing) for item in items]
         control.addItems(list_items)
         jobs = [(item, list_item) for item, list_item in zip(items, list_items) if id(item) in missing]
         if jobs:
@@ -753,7 +754,7 @@ class HomeWindow(xbmcgui.WindowXML):
         if self._detail and self._detail['film'] is item or list_item is None:
             self.setProperty('detail_image', image)
 
-    def _make_listitem(self, item, offscreen=True):
+    def _make_listitem(self, item, title_font, offscreen=True):
         list_item = xbmcgui.ListItem(label=item['label'], label2=item['subtitle'], offscreen=offscreen)
         list_item.setArt({'thumb': item['image'] or item['logo'], 'icon': item['logo'], 'fanart': item['image']})
         properties = {
@@ -768,6 +769,11 @@ class HomeWindow(xbmcgui.WindowXML):
             'progress': str(item['progress']) if item['progress'] else '',
             'live': 'true' if item['kind'] == data.KIND_LIVE else '',
         }
+        if item['kind'] == data.KIND_FILM:
+            # the skin places the title by its number of lines
+            lines = data.wrap_title(item['label'], title_font)
+            properties['title'] = '[CR]'.join(lines)
+            properties['title_lines'] = str(len(lines))
         for key, value in properties.items():
             list_item.setProperty(key, value)
         info_tag = list_item.getVideoInfoTag()

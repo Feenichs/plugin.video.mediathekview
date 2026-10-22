@@ -488,6 +488,14 @@ msgctxt "#30644"
 msgid "Remove from the list"
 msgstr "Aus der Liste entfernen"
 
+msgctxt "#30645"
+msgid "Search in %s"
+msgstr "In %s suchen"
+
+msgctxt "#30646"
+msgid "Search and filter"
+msgstr "Suchen und filtern"
+
 msgctxt "#30650"
 msgid "Settings"
 msgstr "Einstellungen"

@@ -531,6 +531,10 @@ class HomeWindow(xbmcgui.WindowXML):
                 return [
                     {'title': _string(30635), 'items': data.recent_films(db, [channel], days=7, home=False),
                      'more': lambda db: data.recent_films(db, [channel], days=30, limit=data.SEARCH_MAX_ITEMS, home=False)},
+                    # search and the start letters of the shows of the channel
+                    {'title': _string(30646), 'items': [data.make_item(data.KIND_ACTION, _string(30645) % item['label'],
+                                                                       action='search_channel', channel=channel)]
+                     + data.letters(db, channel)},
                     {'title': _string(30629), 'items': data.channel_shows(db, channel, recent_days=14, limit=data.ROW_MAX_ITEMS),
                      'more': lambda db: data.channel_shows(db, channel, recent_days=30)},
                     {'title': _string(30628), 'items': data.channel_shows(db, channel)[:data.ROW_MAX_ITEMS],
@@ -546,8 +550,9 @@ class HomeWindow(xbmcgui.WindowXML):
                         lambda db: data.show_films(db, showids, channels if len(showids) == 1 else None))
 
     def _open_letter(self, item):
-        letter = item['letter']
-        self._open_grid(item['label'], lambda db: data.letter_shows(db, letter))
+        letter, channel = item['letter'], item['channel']
+        title = '%s  ·  %s' % (data.channel_info(channel)[0], item['label']) if channel else item['label']
+        self._open_grid(title, lambda db: data.letter_shows(db, letter, channel or None))
 
     def _open_all(self, item):
         self._open_grid(item['row_title'] or _string(30671), item['more'])
@@ -827,6 +832,14 @@ class HomeWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().notification(_string(30614), _string(30643), time=3000, sound=False)
         elif action == 'search_query':
             self._search(item['label'])
+        elif action == 'search_channel':
+            channel = item['channel']
+            query = xbmcgui.Dialog().input(_string(30643)).strip()
+            if len(query) >= 3:
+                name = data.channel_info(channel)[0]
+                self._open_grid('%s  ·  %s' % (name, query), lambda db: data.search_films(db, query, channel))
+            elif query:
+                xbmcgui.Dialog().notification(_string(30614), _string(30643), time=3000, sound=False)
         elif action == 'saved_search':
             entry = item['entry']
             self._open_grid(item['label'], lambda db: data.saved_search_films(db, entry))

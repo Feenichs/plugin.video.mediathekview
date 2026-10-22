@@ -7,7 +7,6 @@ SPDX-License-Identifier: MIT
 """
 
 import time
-from datetime import datetime
 # pylint: disable=import-error
 import xbmcgui
 import xbmcplugin
@@ -121,9 +120,10 @@ class FilmlistUi(object):
         if pFilm.seconds is not None and pFilm.seconds > 0:
             info_labels['duration'] = pFilm.seconds
 
-        if pFilm.aired:
-            # local time including daylight saving time
-            airedstring = datetime.fromtimestamp(pFilm.aired).isoformat().replace('T', ' ')
+        # local time including daylight saving time, None for unknown dates
+        aired = mvutils.local_datetime(pFilm.aired)
+        if aired is not None:
+            airedstring = aired.isoformat().replace('T', ' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]
             info_labels['dateadded'] = airedstring

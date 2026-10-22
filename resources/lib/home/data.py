@@ -237,9 +237,13 @@ def show_films(db, showids, channels=None, limit=SHOW_MAX_ITEMS):
     return db.films(conditions, params, limit=limit)
 
 
-def search_films(db, query, limit=SEARCH_MAX_ITEMS):
+def search_films(db, query, channel=None, limit=SEARCH_MAX_ITEMS):
     pattern = '%' + query + '%'
-    return db.films(['showname LIKE ? OR title LIKE ?'], [pattern, pattern], limit=limit)
+    conditions, params = ['showname LIKE ? OR title LIKE ?'], [pattern, pattern]
+    if channel:
+        conditions.append('channel = ?')
+        params.append(channel)
+    return db.films(conditions, params, limit=limit)
 
 
 def saved_search_films(db, entry, limit=SEARCH_MAX_ITEMS):
@@ -295,17 +299,27 @@ LETTER_CASE = ("CASE WHEN UPPER(SUBSTR(showname,1,1)) BETWEEN 'A' AND 'Z' THEN U
                "WHEN SUBSTR(showname,1,1) BETWEEN '0' AND '9' THEN '0' ELSE '#' END")
 
 
-def letters(db):
-    rows = db.execute('SELECT %s AS letter, COUNT(DISTINCT showname) FROM film WHERE showname <> \'LIVESTREAM\' '
-                      'GROUP BY %s ORDER BY %s' % (LETTER_CASE, LETTER_CASE, LETTER_CASE))
-    return [make_item(KIND_LETTER, letter, letter=letter, subtitle=_language(30684) % format_count(count)) for letter, count in rows]
+def letters(db, channel=None):
+    """ Start letters of the shows, of all channels or of one """
+    where, params = "showname <> 'LIVESTREAM'", []
+    if channel:
+        where += ' AND channel = ?'
+        params.append(channel)
+    rows = db.execute('SELECT %s AS letter, COUNT(DISTINCT showname) FROM film WHERE %s GROUP BY %s ORDER BY %s'
+                      % (LETTER_CASE, where, LETTER_CASE, LETTER_CASE), params)
+    color = channel_info(channel)[1] if channel else ''
+    return [make_item(KIND_LETTER, letter, letter=letter, channel=channel or '', channels=[channel] if channel else [],
+                      color=color, subtitle=_language(30684) % format_count(count)) for letter, count in rows]
 
 
-def letter_shows(db, letter):
+def letter_shows(db, letter, channel=None):
     """ Shows starting with a letter, a show broadcast by several channels is one tile """
     sql = ('SELECT showname, GROUP_CONCAT(DISTINCT showid), GROUP_CONCAT(DISTINCT channel), COUNT(*), MAX(aired) '
            'FROM film WHERE %s = ? AND showname <> \'LIVESTREAM\'' % LETTER_CASE)
     params = [letter]
+    if channel:
+        sql += ' AND channel = ?'
+        params.append(channel)
     if _settings().getNoFutur():
         sql += ' AND +aired < ?'
         params.append(int(time.time()))
@@ -372,9 +386,9 @@ def format_duration(seconds):
 
 def format_date(timestamp, with_time=True):
     """ "Today, 20:15", "Yesterday, 20:15" or "Mon, 20.10.2026, 20:15" in local time """
-    if not timestamp:
+    aired = mvutils.local_datetime(timestamp)
+    if aired is None:
         return ''
-    aired = datetime.fromtimestamp(timestamp)
     today = datetime.now().date()
     if aired.date() == today:
         day = _language(30677)

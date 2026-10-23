@@ -5875,6 +5875,8 @@
                 <left>68</left><top>180</top><width>1820</width><height>900</height>
                 <orientation>vertical</orientation>
                 <onup>100</onup>
+                <onright>602</onright>
+                <pagecontrol>601</pagecontrol>
                 <scrolltime tween="sine">250</scrolltime>
                 <itemlayout width="360" height="251">
         <control type="group">
@@ -6357,6 +6359,25 @@
             </control>
         </control>
                 </focusedlayout>
+            </control>
+            <control type="button" id="602">
+                <left>1870</left><top>190</top><width>48</width><height>880</height>
+                <texturefocus>-</texturefocus>
+                <texturenofocus>-</texturenofocus>
+                <onleft>600</onleft>
+                <visible>Container(600).HasNext | Container(600).HasPrevious</visible>
+            </control>
+            <control type="scrollbar" id="601">
+                <left>1890</left><top>190</top><width>8</width><height>880</height>
+                <texturesliderbackground colordiffuse="00FFFFFF">mv_white.png</texturesliderbackground>
+                <texturesliderbar border="4" colordiffuse="FFFFC61A">mv_scroll.png</texturesliderbar>
+                <texturesliderbarfocus border="4" colordiffuse="FFFFC61A">mv_scroll.png</texturesliderbarfocus>
+                <textureslidernib>-</textureslidernib>
+                <textureslidernibfocus>-</textureslidernibfocus>
+                <orientation>vertical</orientation>
+                <showonepage>false</showonepage>
+                <onleft>600</onleft>
+                <animation effect="fade" start="100" end="50" time="150" condition="!Control.HasFocus(602)">Conditional</animation>
             </control>
         </control>
 

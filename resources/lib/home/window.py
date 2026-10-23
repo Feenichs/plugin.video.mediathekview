@@ -39,12 +39,16 @@ ROW_LABELS = tuple(range(401, 401 + NUM_ROWS))
 ROW_GROUPS = tuple(range(501, 501 + NUM_ROWS))
 GRID_PANEL = 600
 GRID_COLUMNS = 5
+# invisible button beside the slider of the grid
+GRID_SCROLL_HANDLE = 602
 BUTTON_LIST = 700
 EPISODE_LIST = 720
 DETAIL_LISTS = (BUTTON_LIST, EPISODE_LIST)
 
 CACHE_SECONDS = 300
-GRID_PAGE_SIZE = 30
+# tiles per grid page, independent of the page size of the listings,
+# a multiple of the columns of the grid
+GRID_PAGE_TILES = 100
 TAB_SWITCH_DELAY = 0.35
 PLAYBACK_END_DELAY = 2
 WINDOW_PROPERTY = 'mediathekview_home_window'
@@ -55,6 +59,19 @@ TAB_CHANNELS = 'channels'
 TAB_LETTERS = 'letters'
 TAB_SEARCH = 'search'
 TAB_MORE = 'more'
+
+
+def _grid_page_range(page):
+    """
+    Range of the items shown on a grid page. A page has GRID_PAGE_TILES
+    tiles including the tiles to the previous and the next page, so that
+    all rows are full except on the last page.
+    """
+    if page == 1:
+        return 0, GRID_PAGE_TILES - 1
+    size = GRID_PAGE_TILES - 2
+    start = GRID_PAGE_TILES - 1 + (page - 2) * size
+    return start, start + size
 
 
 def _string(string_id):
@@ -137,6 +154,10 @@ class HomeWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().textviewer(item['label'], item['plot'])
             return
 
+        if focus_id == GRID_SCROLL_HANDLE and action_id in (ACTION_MOVE_UP, ACTION_MOVE_DOWN):
+            self._scroll(down=action_id == ACTION_MOVE_DOWN)
+            return
+
         if focus_id == NAV_LIST and action_id in (ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT):
             self._schedule_tab_switch()
             return
@@ -170,6 +191,16 @@ class HomeWindow(xbmcgui.WindowXML):
             self._activate(item, from_episodes=control_id == EPISODE_LIST)
 
     # Navigation
+
+    def _scroll(self, down):
+        """Move the grid beside the slider by one row"""
+        control = self.getControl(GRID_PANEL)
+        position = control.getSelectedPosition()
+        if not down and position < GRID_COLUMNS:
+            self.setFocusId(NAV_LIST)
+            return
+        target = position + GRID_COLUMNS if down else position - GRID_COLUMNS
+        control.selectItem(min(target, control.size() - 1))
 
     def _on_back(self, focus_id):
         if self._stack:
@@ -583,8 +614,7 @@ class HomeWindow(xbmcgui.WindowXML):
             if self._stale(generation):
                 return
             data.apply_history(source['items'])
-            start = (page - 1) * GRID_PAGE_SIZE
-            end = start + GRID_PAGE_SIZE
+            start, end = _grid_page_range(page)
             items = source['items'][start:end]
             if page > 1:
                 items.insert(0, data.make_item(data.KIND_BACK, _string(30673)))

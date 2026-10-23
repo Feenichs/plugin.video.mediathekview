@@ -167,10 +167,11 @@ def generate_textures():
         os.makedirs(MEDIA)
     r, g, b = BACKGROUND_RGB
     write_png(os.path.join(MEDIA, 'mv_white.png'), 8, 8, lambda x, y: (255, 255, 255, 255))
-    # 9-slice textures, used with border="12" / border="28" / border="16"
+    # 9-slice textures, used with border="12" / border="28" / border="16" / border="4"
     write_png(os.path.join(MEDIA, 'mv_rounded.png'), 64, 64, rounded(64, 64, 10))
     write_png(os.path.join(MEDIA, 'mv_pill.png'), 64, 64, rounded(64, 64, 31))
     write_png(os.path.join(MEDIA, 'mv_focus.png'), 64, 64, rounded(64, 64, 14, outline=4))
+    write_png(os.path.join(MEDIA, 'mv_scroll.png'), 8, 32, rounded(8, 32, 4))
     # overlays of the coloured tiles in the exact tile sizes
     write_png(os.path.join(MEDIA, 'mv_shade.png'), THUMB_WIDTH, THUMB_HEIGHT, shade(THUMB_WIDTH, THUMB_HEIGHT, 10))
     write_png(os.path.join(MEDIA, 'mv_shade_grid.png'), GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT,
@@ -468,6 +469,37 @@ def tile_layout(list_id, focused, width, thumb_width, thumb_height, shade_textur
         badge_left=THUMB_LEFT + thumb_width - 76 - 12, badge_top=THUMB_TOP + 12,
         text=TEXT, accent=ACCENT, tile_focused=TILE_FOCUSED,
     )
+
+
+def scrollbar(control_id, list_id, handle_id, left, top, height):
+    """
+    A slider beside a long list, like in the Kodi menus. It is only a short
+    yellow line without a track, its length shows the visible part. Right
+    moves to an invisible button beside it, Up and Down on that button move
+    the list by rows (see HomeWindow._scroll), not every remote has page
+    keys. The scrollbar itself only pages, it is left to the mouse.
+    """
+    return '''
+            <control type="button" id="{handle_id}">
+                <left>{handle_left}</left><top>{top}</top><width>48</width><height>{height}</height>
+                <texturefocus>-</texturefocus>
+                <texturenofocus>-</texturenofocus>
+                <onleft>{list_id}</onleft>
+                <visible>Container({list_id}).HasNext | Container({list_id}).HasPrevious</visible>
+            </control>
+            <control type="scrollbar" id="{control_id}">
+                <left>{left}</left><top>{top}</top><width>8</width><height>{height}</height>
+                <texturesliderbackground colordiffuse="00FFFFFF">mv_white.png</texturesliderbackground>
+                <texturesliderbar border="4" colordiffuse="{accent}">mv_scroll.png</texturesliderbar>
+                <texturesliderbarfocus border="4" colordiffuse="{accent}">mv_scroll.png</texturesliderbarfocus>
+                <textureslidernib>-</textureslidernib>
+                <textureslidernibfocus>-</textureslidernibfocus>
+                <orientation>vertical</orientation>
+                <showonepage>false</showonepage>
+                <onleft>{list_id}</onleft>
+                <animation effect="fade" start="100" end="50" time="150" condition="!Control.HasFocus({handle_id})">Conditional</animation>
+            </control>'''.format(control_id=control_id, list_id=list_id, handle_id=handle_id, handle_left=left - 20,
+                                  left=left, top=top, height=height, accent=ACCENT)
 
 
 def row(index):
@@ -814,12 +846,14 @@ WINDOW_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
                 <left>68</left><top>180</top><width>1820</width><height>900</height>
                 <orientation>vertical</orientation>
                 <onup>100</onup>
+                <onright>602</onright>
+                <pagecontrol>601</pagecontrol>
                 <scrolltime tween="sine">250</scrolltime>
                 <itemlayout width="{grid_width}" height="{grid_height}">{grid_item}
                 </itemlayout>
                 <focusedlayout width="{grid_width}" height="{grid_height}">{grid_focused}
                 </focusedlayout>
-            </control>
+            </control>{grid_scrollbar}
         </control>
 
         <!-- Status -->
@@ -889,6 +923,7 @@ def generate_window():
         grid_width=GRID_TILE_WIDTH, grid_height=GRID_TILE_HEIGHT,
         grid_item=tile_layout(600, False, GRID_TILE_WIDTH, GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 'mv_shade_grid.png'),
         grid_focused=tile_layout(600, True, GRID_TILE_WIDTH, GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 'mv_shade_grid.png'),
+        grid_scrollbar=scrollbar(601, 600, 602, 1890, 190, 880),
         loading=localize(30675),
         empty=localize(30676),
     )

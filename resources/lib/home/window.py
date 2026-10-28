@@ -54,6 +54,8 @@ GRID_PAGE_TILES = 100
 TAB_SWITCH_DELAY = 0.35
 # the grid follows the filter after a short pause in typing
 FILTER_DELAY = 0.4
+# a key held down repeats faster than this; Back only leaves the filter after the key was released
+FILTER_KEY_RELEASE = 0.8
 PLAYBACK_END_DELAY = 2
 WINDOW_PROPERTY = 'mediathekview_home_window'
 
@@ -104,6 +106,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self._current_tab = None
         self._tab_timer = None
         self._filter_timer = None
+        self._filter_input = 0
         # views opened on top of the tab: rows of a channel, grids and detail pages
         self._stack = []
         self._row_data = {}
@@ -142,6 +145,17 @@ class HomeWindow(xbmcgui.WindowXML):
     def onAction(self, action):
         action_id = action.getId()
         focus_id = self.getFocusId()
+
+        if focus_id == GRID_FILTER and action_id not in (ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT, ACTION_MOVE_UP, ACTION_MOVE_DOWN):
+            # Kodi reports no key releases: input in quick succession is a key held down, e.g. Back
+            # or backspace deleting the text, it must not go on and leave the grid once the text is empty
+            now = time.time()
+            held = now - self._filter_input < FILTER_KEY_RELEASE
+            self._filter_input = now
+            if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU) and held:
+                if action_id == ACTION_NAV_BACK:
+                    self._delete_filter_character()
+                return
 
         if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU):
             if action_id == ACTION_NAV_BACK and focus_id == GRID_FILTER and self._delete_filter_character():

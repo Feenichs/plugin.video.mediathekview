@@ -500,6 +500,14 @@ msgctxt "#30646"
 msgid "Search and filter"
 msgstr "Suchen und filtern"
 
+msgctxt "#30647"
+msgid "Find a show …"
+msgstr "Sendung finden …"
+
+msgctxt "#30648"
+msgid "No show contains \"%s\"."
+msgstr "Keine Sendung enthält „%s“."
+
 msgctxt "#30650"
 msgid "Settings"
 msgstr "Einstellungen"

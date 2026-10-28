@@ -894,7 +894,32 @@
             <font>font30_title</font>
             <textcolor>FFFFFFFF</textcolor>
             <label>$INFO[Window.Property(page_title)]</label>
-            <visible>!String.IsEqual(Window.Property(view),detail)</visible>
+            <visible>!String.IsEqual(Window.Property(view),detail) + ![String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]</visible>
+        </control>
+        <control type="label">
+            <left>80</left><top>104</top><width>1240</width><height>50</height>
+            <font>font30_title</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <label>$INFO[Window.Property(page_title)]</label>
+            <visible>[String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]</visible>
+        </control>
+        <!-- Filter of the lists of shows sorted by name: OK opens the keyboard, the number keys of
+             the remote (like on a phone) and a keyboard type directly into it -->
+        <control type="edit" id="610">
+            <left>1356</left><top>100</top><width>520</width><height>60</height>
+            <font>font13</font>
+            <textcolor>FFFFFFFF</textcolor>
+            <focusedcolor>FF091221</focusedcolor>
+            <textoffsetx>30</textoffsetx>
+            <aligny>center</aligny>
+            <texturefocus border="28" colordiffuse="FFFFFFFF">mv_pill.png</texturefocus>
+            <texturenofocus border="28" colordiffuse="26FFFFFF">mv_pill.png</texturenofocus>
+            <hinttext>[COLOR FF8FA3BF]$ADDON[plugin.video.mediathekview 30647][/COLOR]</hinttext>
+            <onup>100</onup>
+            <ondown>600</ondown>
+            <onleft>610</onleft>
+            <onright>610</onright>
+            <visible>[String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]</visible>
         </control>
 
         <!-- Rows -->
@@ -5874,7 +5899,8 @@
             <control type="panel" id="600">
                 <left>68</left><top>180</top><width>1820</width><height>900</height>
                 <orientation>vertical</orientation>
-                <onup>100</onup>
+                <onup condition="[String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]">610</onup>
+                <onup condition="![String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]">100</onup>
                 <onright>602</onright>
                 <pagecontrol>601</pagecontrol>
                 <scrolltime tween="sine">250</scrolltime>

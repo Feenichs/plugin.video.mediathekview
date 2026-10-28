@@ -12,6 +12,10 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
   Webseiten an (vollständige Liste wöchentlich, ca. 80 MB, Änderungen stündlich). Videos ohne Bild bekommen das Bild
   einer anderen Folge oder eine Kachel in Farbe und mit Logo des Senders. Abschaltbar in den Einstellungen
 - Sender-Seiten mit Suche und Filter nach Anfangsbuchstaben
+- Lange Listen von Sendungen (A–Z, *Alle Sendungen* eines Senders) haben ein Suchfeld: es zeigt nur die Sendungen,
+  die den eingegebenen Text enthalten, die mit ihm beginnenden zuerst („sand“ findet „Unser Sandmännchen“). OK
+  öffnet die Bildschirmtastatur, mit den Zifferntasten der Fernbedienung (wie beim Handy) oder einer Tastatur
+  schreibt man direkt hinein, Zurück löscht das letzte Zeichen
 - Detailseite: Abspielen bzw. Fortsetzen/von vorne, mit Untertiteln, Qualität wählen (HD, normal, klein),
   herunterladen, alle Folgen und eine Reihe mit weiteren Folgen der Sendung
 - *Weiterschauen*: die Position wird gespeichert, Fortschrittsbalken auf den Kacheln
@@ -31,7 +35,7 @@ Senderlogos u. a.
 **English:** This fork of the [MediathekView add-on](https://github.com/mediathekview/plugin.video.mediathekview)
 adds an interface like the media library apps on Fire TV, made for remote controls: a tab bar, rows of tiles with
 preview images from the websites of the media libraries and a large preview, detail pages with more episodes, "continue watching" with saved
-positions, grouped livestreams, channel pages, shows from A to Z and search. It also fixes several bugs of the
+positions, grouped livestreams, channel pages, shows from A to Z with a filter and search. It also fixes several bugs of the
 original; among others videos without HD played in the smallest instead of the normal quality, air times were one
 hour early during daylight saving time and every view read the whole database because it had no indexes.
 

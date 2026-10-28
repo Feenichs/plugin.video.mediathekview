@@ -499,6 +499,14 @@ msgctxt "#30646"
 msgid "Search and filter"
 msgstr ""
 
+msgctxt "#30647"
+msgid "Find a show …"
+msgstr ""
+
+msgctxt "#30648"
+msgid "No show contains \"%s\"."
+msgstr ""
+
 msgctxt "#30650"
 msgid "Settings"
 msgstr ""

@@ -825,7 +825,32 @@ WINDOW_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
             <font>font30_title</font>
             <textcolor>{text}</textcolor>
             <label>$INFO[Window.Property(page_title)]</label>
-            <visible>!String.IsEqual(Window.Property(view),detail)</visible>
+            <visible>!String.IsEqual(Window.Property(view),detail) + !{filter_shown}</visible>
+        </control>
+        <control type="label">
+            <left>80</left><top>104</top><width>1240</width><height>50</height>
+            <font>font30_title</font>
+            <textcolor>{text}</textcolor>
+            <label>$INFO[Window.Property(page_title)]</label>
+            <visible>{filter_shown}</visible>
+        </control>
+        <!-- Filter of the lists of shows sorted by name: OK opens the keyboard, the number keys of
+             the remote (like on a phone) and a keyboard type directly into it -->
+        <control type="edit" id="{grid_filter}">
+            <left>1356</left><top>100</top><width>520</width><height>60</height>
+            <font>font13</font>
+            <textcolor>{text}</textcolor>
+            <focusedcolor>{dark}</focusedcolor>
+            <textoffsetx>30</textoffsetx>
+            <aligny>center</aligny>
+            <texturefocus border="28" colordiffuse="FFFFFFFF">mv_pill.png</texturefocus>
+            <texturenofocus border="28" colordiffuse="26FFFFFF">mv_pill.png</texturenofocus>
+            <hinttext>[COLOR {dim}]{filter_hint}[/COLOR]</hinttext>
+            <onup>100</onup>
+            <ondown>600</ondown>
+            <onleft>{grid_filter}</onleft>
+            <onright>{grid_filter}</onright>
+            <visible>{filter_shown}</visible>
         </control>
 
         <!-- Rows -->
@@ -845,7 +870,8 @@ WINDOW_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
             <control type="panel" id="600">
                 <left>68</left><top>180</top><width>1820</width><height>900</height>
                 <orientation>vertical</orientation>
-                <onup>100</onup>
+                <onup condition="{filter_shown}">{grid_filter}</onup>
+                <onup condition="!{filter_shown}">100</onup>
                 <onright>602</onright>
                 <pagecontrol>601</pagecontrol>
                 <scrolltime tween="sine">250</scrolltime>
@@ -908,7 +934,9 @@ def generate_window():
         background=BACKGROUND,
         background_rgb=BACKGROUND[2:],
         grid_view='String.IsEqual(Window.Property(view),grid)',
-        text=TEXT, dim=TEXT_DIM, message=MESSAGE, accent=ACCENT,
+        filter_shown='[String.IsEqual(Window.Property(view),grid) + String.IsEqual(Window.Property(filter),true)]',
+        grid_filter=610, filter_hint=localize(30647),
+        text=TEXT, dim=TEXT_DIM, dark=TEXT_DARK, message=MESSAGE, accent=ACCENT,
         nav_width=NAV_WIDTH,
         nav_item=pill_layout(100, False, NAV_WIDTH, 'String.IsEqual(ListItem.Property(active),true)'),
         nav_focused=pill_layout(100, True, NAV_WIDTH, 'String.IsEqual(ListItem.Property(active),true)'),

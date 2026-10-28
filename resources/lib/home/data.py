@@ -353,6 +353,39 @@ def letter_shows(db, letter, channel=None):
             if not (hide_variants() and 'Gebärdensprache' in (name or ''))]
 
 
+def _filter_key(text):
+    # quotes and hashtags in front of a name do not count, e.g. "„Spielfilm" or "#hinreisend"
+    return (text or '').lower().lstrip(' #"\'„“”»«‚‘’')
+
+
+def _match_rank(name, text):
+    """ 0: the name starts with the text, 1: a word of it does, 2: the text is elsewhere, None: no match """
+    rank = None
+    position = name.find(text)
+    while position >= 0:
+        if position == 0:
+            return 0
+        if not name[position - 1].isalnum():
+            rank = 1
+        elif rank is None:
+            rank = 2
+        position = name.find(text, position + 1)
+    return rank
+
+
+def filter_items(items, text):
+    """
+    Items whose name contains the text typed into the filter of a list of shows, e.g. "sand" finds
+    "Unser Sandmännchen"; names starting with the text first, then the ones with a word starting with it
+    """
+    text = _filter_key(text)
+    if not text:
+        return list(items)
+    ranked = [(_match_rank(_filter_key(item['label']), text), item) for item in items]
+    # sorted() is stable: alphabetical within the groups
+    return [item for rank, item in sorted((r for r in ranked if r[0] is not None), key=lambda r: r[0])]
+
+
 def new_shows(db, days=2, limit=ROW_MAX_ITEMS):
     """ Shows with new episodes, newest first """
     sql = ('SELECT showname, GROUP_CONCAT(DISTINCT showid), GROUP_CONCAT(DISTINCT channel), COUNT(*), MAX(aired) '

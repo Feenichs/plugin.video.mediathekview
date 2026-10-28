@@ -41,6 +41,8 @@ GRID_PANEL = 600
 GRID_COLUMNS = 5
 # invisible button beside the slider of the grid
 GRID_SCROLL_HANDLE = 602
+# filter above the grids of shows sorted by name
+GRID_FILTER = 610
 BUTTON_LIST = 700
 EPISODE_LIST = 720
 DETAIL_LISTS = (BUTTON_LIST, EPISODE_LIST)
@@ -50,6 +52,8 @@ CACHE_SECONDS = 300
 # a multiple of the columns of the grid
 GRID_PAGE_TILES = 100
 TAB_SWITCH_DELAY = 0.35
+# the grid follows the filter after a short pause in typing
+FILTER_DELAY = 0.4
 PLAYBACK_END_DELAY = 2
 WINDOW_PROPERTY = 'mediathekview_home_window'
 
@@ -99,6 +103,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self._tabs = []
         self._current_tab = None
         self._tab_timer = None
+        self._filter_timer = None
         # views opened on top of the tab: rows of a channel, grids and detail pages
         self._stack = []
         self._row_data = {}
@@ -139,6 +144,8 @@ class HomeWindow(xbmcgui.WindowXML):
         focus_id = self.getFocusId()
 
         if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU):
+            if action_id == ACTION_NAV_BACK and focus_id == GRID_FILTER and self._delete_filter_character():
+                return
             self._on_back(focus_id)
             return
 
@@ -177,7 +184,7 @@ class HomeWindow(xbmcgui.WindowXML):
         if focus_id == GRID_PANEL and action_id == ACTION_MOVE_UP:
             # the panel moves up by itself, only leave it from the first line
             if self.getControl(GRID_PANEL).getSelectedPosition() < GRID_COLUMNS:
-                self.setFocusId(NAV_LIST)
+                self.setFocusId(self._above_grid())
 
     def onClick(self, control_id):
         if control_id == NAV_LIST:
@@ -185,6 +192,10 @@ class HomeWindow(xbmcgui.WindowXML):
             return
         if control_id == BUTTON_LIST:
             self._on_button()
+            return
+        if control_id == GRID_FILTER:
+            # the edit control reports every change of its text as a click
+            self._schedule_filter(self.getControl(GRID_FILTER).getText())
             return
         item = self._focused_item(control_id)
         if item:
@@ -197,7 +208,7 @@ class HomeWindow(xbmcgui.WindowXML):
         control = self.getControl(GRID_PANEL)
         position = control.getSelectedPosition()
         if not down and position < GRID_COLUMNS:
-            self.setFocusId(NAV_LIST)
+            self.setFocusId(self._above_grid())
             return
         target = position + GRID_COLUMNS if down else position - GRID_COLUMNS
         control.selectItem(min(target, control.size() - 1))
@@ -216,14 +227,17 @@ class HomeWindow(xbmcgui.WindowXML):
         self._closing = True
         with self._lock:
             self._generation += 1
-        if self._tab_timer:
-            self._tab_timer.cancel()
+        for timer in (self._tab_timer, self._filter_timer):
+            if timer:
+                timer.cancel()
         self.close()
 
     def _focus_content(self):
         view = self.getProperty('view')
         if view == 'grid':
-            if self._grid and self._grid['items']:
+            if self._grid_filterable():
+                self.setFocusId(GRID_FILTER)
+            elif self._grid and self._grid['items']:
                 self.setFocusId(GRID_PANEL)
             return
         if view == 'detail':
@@ -260,6 +274,13 @@ class HomeWindow(xbmcgui.WindowXML):
             target = below[0]
         self._set_row_offset(target)
         self.setFocusId(ROW_LISTS[target])
+
+    def _grid_filterable(self):
+        view = self._stack[-1] if self._stack else None
+        return bool(view and view['type'] == 'grid' and view['source'].get('filterable'))
+
+    def _above_grid(self):
+        return GRID_FILTER if self._grid_filterable() else NAV_LIST
 
     def _move_detail(self, focus_id, up):
         lists = [BUTTON_LIST]
@@ -480,7 +501,8 @@ class HomeWindow(xbmcgui.WindowXML):
                 # filled rows without gaps: the preview of the tab bar shows the first tile of the first row
                 index = shown
                 if row.get('more') and len(row['items']) >= data.ROW_MAX_ITEMS:
-                    items.append(data.make_item(data.KIND_ALL, _string(30671), row_title=row['title'], more=row['more']))
+                    items.append(data.make_item(data.KIND_ALL, _string(30671), row_title=row['title'], more=row['more'],
+                                                filterable=row.get('filterable', False)))
                 with self._lock:
                     if self._stale(generation):
                         return
@@ -552,8 +574,10 @@ class HomeWindow(xbmcgui.WindowXML):
             self._grid = None
             self._show_detail(view)
 
-    def _open_grid(self, title, load, page=1, source=None):
-        self._push({'type': 'grid', 'title': title, 'source': source or {'load': load, 'items': None}, 'page': page})
+    def _open_grid(self, title, load, page=1, source=None, filterable=False):
+        """ A grid of the items of load; filterable for the lists of shows sorted by name """
+        source = source or {'load': load, 'items': None, 'filterable': filterable, 'query': ''}
+        self._push({'type': 'grid', 'title': title, 'source': source, 'page': page})
 
     def _open_channel(self, item):
         channel = item['channel']
@@ -570,7 +594,7 @@ class HomeWindow(xbmcgui.WindowXML):
                     {'title': _string(30629), 'items': data.channel_shows(db, channel, recent_days=14, limit=data.ROW_MAX_ITEMS),
                      'more': lambda db: data.channel_shows(db, channel, recent_days=30)},
                     {'title': _string(30628), 'items': data.channel_shows(db, channel)[:data.ROW_MAX_ITEMS],
-                     'more': lambda db: data.channel_shows(db, channel)},
+                     'more': lambda db: data.channel_shows(db, channel), 'filterable': True},
                 ]
             return self._with_history(self._cached('channel:' + channel, _load))
 
@@ -584,10 +608,10 @@ class HomeWindow(xbmcgui.WindowXML):
     def _open_letter(self, item):
         letter, channel = item['letter'], item['channel']
         title = '%s  ·  %s' % (data.channel_info(channel)[0], item['label']) if channel else item['label']
-        self._open_grid(title, lambda db: data.letter_shows(db, letter, channel or None))
+        self._open_grid(title, lambda db: data.letter_shows(db, letter, channel or None), filterable=True)
 
     def _open_all(self, item):
-        self._open_grid(item['row_title'] or _string(30671), item['more'])
+        self._open_grid(item['row_title'] or _string(30671), item['more'], filterable=item.get('filterable', False))
 
     # Grid
 
@@ -599,11 +623,20 @@ class HomeWindow(xbmcgui.WindowXML):
         page = view['page']
         panel = self.getControl(GRID_PANEL)
         title = view['title'] if page == 1 else '%s  ·  %s' % (view['title'], _string(30672) % page)
+        filterable = source.get('filterable', False)
+        query = source.get('query', '') if filterable else ''
         self.setProperty('view', 'grid')
         self.setProperty('page_title', title)
+        self.setProperty('filter', 'true' if filterable else '')
         self.setProperty('empty', '')
         self.setProperty('empty_text', '')
         self.setProperty('loading', 'true')
+        if filterable:
+            edit = self.getControl(GRID_FILTER)
+            edit.setType(xbmcgui.INPUT_TYPE_TEXT, _string(30647))
+            # not while the user types, the text may be ahead of the query
+            if self.getFocusId() != GRID_FILTER and edit.getText() != query:
+                edit.setText(query)
         panel.reset()
         self._grid = {'items': []}
 
@@ -614,11 +647,12 @@ class HomeWindow(xbmcgui.WindowXML):
             if self._stale(generation):
                 return
             data.apply_history(source['items'])
+            matches = data.filter_items(source['items'], query) if query else source['items']
             start, end = _grid_page_range(page)
-            items = source['items'][start:end]
+            items = matches[start:end]
             if page > 1:
                 items.insert(0, data.make_item(data.KIND_BACK, _string(30673)))
-            if len(source['items']) > end:
+            if len(matches) > end:
                 items.append(data.make_item(data.KIND_NEXT, _string(30674)))
             with self._lock:
                 if self._stale(generation):
@@ -626,15 +660,53 @@ class HomeWindow(xbmcgui.WindowXML):
                 self._grid['items'] = items
                 self._add_items(panel, items)
                 self.setProperty('loading', '')
-                if not source['items']:
+                # the focus stays in the filter while the user types
+                typing = self.getFocusId() == GRID_FILTER
+                if not matches:
                     self.setProperty('empty', 'true')
-                    self.setFocusId(NAV_LIST)
+                    if query:
+                        self.setProperty('empty_text', _string(30648) % query)
+                    if not typing:
+                        self.setFocusId(GRID_FILTER if filterable else NAV_LIST)
                     return
                 if not self._restore_focus(GRID_PANEL, panel, len(items)):
                     panel.selectItem(1 if page > 1 and len(items) > 1 else 0)
-                    self.setFocusId(GRID_PANEL)
+                    if not typing:
+                        self.setFocusId(GRID_PANEL)
 
         self._start(_run)
+
+    def _schedule_filter(self, text):
+        if self._filter_timer:
+            self._filter_timer.cancel()
+        timer = threading.Timer(FILTER_DELAY, lambda: self._apply_filter(text))
+        timer.daemon = True
+        self._filter_timer = timer
+        timer.start()
+
+    def _apply_filter(self, text):
+        """ Show the shows containing the text of the filter, from the first page on """
+        if self._closing or not self._grid_filterable():
+            return
+        source = self._stack[-1]['source']
+        query = text.lstrip()
+        if query == source['query']:
+            return
+        source['query'] = query
+        while len(self._stack) > 1 and self._stack[-2].get('source') is source:
+            self._stack.pop()
+        self._restore = None
+        self._render(self._stack[-1])
+
+    def _delete_filter_character(self):
+        """ Back on the remote deletes the last character, an empty filter leaves the grid """
+        edit = self.getControl(GRID_FILTER)
+        text = edit.getText()
+        if not text:
+            return False
+        edit.setText(text[:-1])
+        self._schedule_filter(text[:-1])
+        return True
 
     # Detail page
 

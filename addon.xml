@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3~tv13"
+	version="1.1.3~tv14"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -34,8 +34,10 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv14 (2026-10-28):
+- [new] TV interface: the filter of the lists of shows finds the typed text anywhere in the name ("sand" finds "Unser Sandmännchen"), names starting with it first
 v.1.1.3~tv13 (2026-10-28):
-- [new] TV interface: filter above the lists of shows sorted by name (A-Z, all shows of a channel), shows the shows containing the typed text, the ones starting with it first; OK opens the keyboard, number keys and a keyboard type directly
+- [new] TV interface: filter above the lists of shows sorted by name (A-Z, all shows of a channel), shows the shows starting with the typed text; OK opens the keyboard, number keys and a keyboard type directly
 v.1.1.3~tv12 (2026-10-23):
 - [new] TV interface: scrollbar beside the grid, Right from the last column moves to it, Up/Down there move the grid by rows
 - [new] TV interface: grid pages show 100 tiles instead of 30, all rows are full

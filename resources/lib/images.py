@@ -4,8 +4,10 @@ Preview images of the films from the websites of the media libraries.
 
 The database of MediathekView has no images and no websites. The film list
 (JSON) has the website of every film: the service keeps an index from the
-video url to the website (websites.db: the full list once a week, the small
-list of changes once an hour). The TV interface looks up the image of a
+video url to the website (websites.db). It downloads the full list once a
+week; the lists the database update downloads anyway, the list of changes
+every few hours, are read before they are deleted, so the server of
+MediathekView only has one additional download a week. The TV interface looks up the image of a
 film on its website when its tile is shown and keeps it (images.db); a film
 without an image of its own gets the image of another episode of its show.
 
@@ -34,9 +36,7 @@ except ImportError:
 
 FILMLISTE_URL = 'https://liste.mediathekview.de/'
 FULL_LIST = 'Filmliste-akt.xz'
-DIFF_LIST = 'Filmliste-diff.xz'
 FULL_INTERVAL = 7 * 86400
-DIFF_INTERVAL = 3600
 # films without an image are looked up again after a while, the page may have changed
 RETRY_SECONDS = 7 * 86400
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Kodi MediathekView'
@@ -234,7 +234,7 @@ class ImageStore(object):
     # Index of the websites, kept by the service
 
     def refresh(self, abort=lambda: False, logger=None):
-        """ The full film list once a week, the list of changes once an hour """
+        """ The full film list once a week, unless the database update has brought one """
         meta = {}
         if os.path.isfile(self.sites_path):
             conn = self._connect_sites(self.sites_path)
@@ -242,13 +242,19 @@ class ImageStore(object):
                 meta = dict(conn.execute('SELECT name, value FROM meta').fetchall())
             finally:
                 conn.close()
-        now = time.time()
-        if now - float(meta.get('full', 0)) > FULL_INTERVAL:
-            self._import(FULL_LIST, True, abort, logger)
-        elif now - float(meta.get('diff', 0)) > DIFF_INTERVAL:
-            self._import(DIFF_LIST, False, abort, logger)
+        if time.time() - float(meta.get('full', 0)) > FULL_INTERVAL:
+            response = urlopen(Request(FILMLISTE_URL + FULL_LIST, headers={'User-Agent': USER_AGENT}), timeout=60)
+            try:
+                self._import(response, FULL_LIST, True, True, abort, logger)
+            finally:
+                response.close()
 
-    def _import(self, name, full, abort, logger):
+    def import_file(self, path, full, abort=lambda: False, logger=None):
+        """ A film list the database update has downloaded and unpacked: the full list or the changes """
+        with open(path, 'rb') as stream:
+            self._import(stream, os.path.basename(path), full, False, abort, logger)
+
+    def _import(self, stream, name, full, compressed, abort, logger):
         """ The full list is written to a new file that replaces the index, the changes are added to it """
         start = time.time()
         count = 0
@@ -261,19 +267,15 @@ class ImageStore(object):
                 if full:
                     conn.execute('PRAGMA journal_mode=OFF')
                     conn.execute('PRAGMA synchronous=OFF')
-                response = urlopen(Request(FILMLISTE_URL + name, headers={'User-Agent': USER_AGENT}), timeout=60)
-                try:
-                    batch = []
-                    for video, website in _parse_film_list(response, abort):
-                        batch.append((video_key(video), website))
-                        if len(batch) >= 10000:
-                            conn.executemany('INSERT OR REPLACE INTO site VALUES (?, ?)', batch)
-                            count += len(batch)
-                            batch = []
-                    conn.executemany('INSERT OR REPLACE INTO site VALUES (?, ?)', batch)
-                    count += len(batch)
-                finally:
-                    response.close()
+                batch = []
+                for video, website in _parse_film_list(stream, abort, compressed):
+                    batch.append((video_key(video), website))
+                    if len(batch) >= 10000:
+                        conn.executemany('INSERT OR REPLACE INTO site VALUES (?, ?)', batch)
+                        count += len(batch)
+                        batch = []
+                conn.executemany('INSERT OR REPLACE INTO site VALUES (?, ?)', batch)
+                count += len(batch)
                 if abort():
                     conn.rollback()
                     return
@@ -302,9 +304,9 @@ def _replace(source, target):
             time.sleep(0.5)
 
 
-def _parse_film_list(stream, abort):
-    """ (video url, website) of the films of a compressed film list, read while it is downloaded """
-    decompressor = lzma.LZMADecompressor()
+def _parse_film_list(stream, abort, compressed=True):
+    """ (video url, website) of the films of a film list, a compressed one is read while it is downloaded """
+    decompressor = lzma.LZMADecompressor() if compressed else None
     decoder = codecs.getincrementaldecoder('utf-8')('replace')
     buffer = ''
     marker = '"X":'
@@ -312,7 +314,7 @@ def _parse_film_list(stream, abort):
     while not abort():
         chunk = stream.read(1 << 18)
         if chunk:
-            buffer += decoder.decode(decompressor.decompress(chunk))
+            buffer += decoder.decode(decompressor.decompress(chunk) if decompressor else chunk)
             parts = buffer.split(marker)
             buffer = parts.pop()
         else:

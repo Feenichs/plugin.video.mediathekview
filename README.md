@@ -9,8 +9,9 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
 - Große Vorschau des ausgewählten Videos (Bild, Sendung, Titel, Sender, Sendezeit, Dauer, HD/UT, Beschreibung)
 - Vorschaubilder von den Webseiten der Mediatheken (ARD-Mediathek, ZDF, 3sat, arte, KiKA, ORF, SRF, DW u. a.): die
   Datenbank von MediathekView enthält keine Bilder, der Service legt deshalb aus der Filmliste einen Index der
-  Webseiten an (vollständige Liste wöchentlich, ca. 80 MB, Änderungen stündlich). Videos ohne Bild bekommen das Bild
-  einer anderen Folge oder eine Kachel in Farbe und mit Logo des Senders. Abschaltbar in den Einstellungen
+  Webseiten an (vollständige Liste wöchentlich, ca. 80 MB; die Änderungen liest er aus der Liste mit, die das
+  Datenbank-Update ohnehin lädt). Videos ohne Bild bekommen das Bild einer anderen Folge oder eine Kachel in Farbe
+  und mit Logo des Senders. Abschaltbar in den Einstellungen
 - Sender-Seiten mit Suche und Filter nach Anfangsbuchstaben
 - Lange Listen von Sendungen (A–Z, *Alle Sendungen* eines Senders) haben ein Suchfeld: es zeigt nur die Sendungen,
   die den eingegebenen Text enthalten, die mit ihm beginnenden zuerst („sand“ findet „Unser Sandmännchen“). OK
@@ -64,9 +65,9 @@ version with an update of the original add-on; disable automatic updates for the
   cropped from `resources/icons` with Pillow).
 - After the update the service adds indexes to an existing database once (a few seconds), a downloaded database gets
   them after every download.
-- Preview images: the service downloads the full film list (about 80 MB) once a week and the list of changes every
-  hour for an index of the websites (websites.db, about 90 MB in the profile of the add-on); images found are kept in
-  images.db. The images are looked up when their tiles are shown, the first time a row takes a few seconds.
+- Preview images: the service downloads the full film list (about 80 MB) once a week for an index of the websites
+  (websites.db, about 90 MB in the profile of the add-on) and reads the lists of changes the database update
+  downloads anyway (or its full list, if it loads one); images found are kept in images.db. The images are looked up when their tiles are shown, the first time a row takes a few seconds.
 
 This is an unofficial fork and not endorsed by MediathekView.de or the original authors.
 

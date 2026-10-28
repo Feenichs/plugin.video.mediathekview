@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3~tv15"
+	version="1.1.3~tv16"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -34,6 +34,8 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv16 (2026-10-28):
+- [fix] TV interface: the index of the websites for the preview images reads the film lists the database update downloads anyway instead of downloading the list of changes again every hour, only the full list once a week remains
 v.1.1.3~tv15 (2026-10-28):
 - [fix] TV interface: holding Back or backspace in the filter of a list of shows deleted the text and then left the list and the add-on, Back now only leaves after the key was released
 v.1.1.3~tv14 (2026-10-28):

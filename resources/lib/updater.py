@@ -58,6 +58,23 @@ class MediathekViewUpdater(object):
             del self.database
             self.database = None
 
+    def _indexWebsites(self, filename, full):
+        """
+        The preview images of the TV interface need the websites of the films, which only the film lists
+        have: the index reads the list downloaded here instead of downloading it again
+        """
+        try:
+            if appContext.ADDONCLASS.getSetting('tvimages') == 'false':
+                return
+            from resources.lib import images
+            monitor = appContext.MVMONITOR
+            images.ImageStore(self.settings.getDatapath()).import_file(
+                filename, full, monitor.abort_requested if monitor else (lambda: False), self.logger)
+        # pylint: disable=broad-except
+        except Exception as err:
+            # e.g. the command line updater or Python without lzma: the images are not essential
+            self.logger.warn('Index of the websites not updated: {}', err)
+
     def doUpdate(self):
         """ "Disabled" / "Manual" / "On Start" / "Automatic" / "continuous" """
         databaseStatus = self.database.getDatabaseStatus()
@@ -154,6 +171,7 @@ class MediathekViewUpdater(object):
                     self.logger.debug('use existing full update file')
                     downloadFullUpdate = False
                 UpdateFileImport(ufd.getTargetFilename(), self.database).updateFull()
+                self._indexWebsites(ufd.getTargetFilename(), True)
                 if (downloadFullUpdate):
                     ufd.removeDownloads()
                 #
@@ -165,6 +183,7 @@ class MediathekViewUpdater(object):
             self.logger.debug('incremental update')
             ufd.downloadIncrementalUpdateFile()
             UpdateFileImport(ufd.getTargetFilename(), self.database).updateIncremental()
+            self._indexWebsites(ufd.getTargetFilename(), False)
             ufd.removeDownloads()
             self.database.set_status('IDLE', pLastupdate=int(time.time()))
             self.settings.set_update_triggered('false')

@@ -4,7 +4,7 @@
 eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedienung:
 
 - Tab-Leiste: *Startseite*, *Live*, *Sender*, *A–Z*, *Suche* und *Mehr*
-- Startseite mit Reihen: *Weiterschauen*, *Neu in den Mediatheken*, *Jetzt live*, *Spielfilme*, *Krimis*,
+- Startseite mit Reihen: *Weiterschauen*, *Neue Folgen meiner Sendungen*, *Merkliste*, *Neu in den Mediatheken*, *Jetzt live*, *Spielfilme*, *Krimis*,
   *Dokus und Reportagen*, *Sendungen mit neuen Folgen*, *Neu bei ARD/ZDF/arte/3sat*
 - Große Vorschau des ausgewählten Videos (Bild, Sendung, Titel, Sender, Sendezeit, Dauer, HD/UT, Beschreibung)
 - Vorschaubilder von den Webseiten der Mediatheken (ARD-Mediathek, ZDF, 3sat, arte, KiKA, ORF, SRF, DW u. a.): die
@@ -23,6 +23,14 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
 - Livestreams gruppiert (bundesweit, regional, WDR Lokalzeit, Österreich/Schweiz/international), Sender-Seiten
   mit den neuesten Videos und Sendungen, alle Sendungen von A bis Z, Suche mit Verlauf und den gespeicherten Suchen
   der erweiterten Suche
+- Suche nach Wörtern statt nach exaktem Text: die Wörter dürfen in beliebiger Reihenfolge im Namen der Sendung und
+  im Titel stehen („lanz markus“, „tatort münster“), Bindestriche sowie Groß-/Kleinschreibung und Schreibweise der
+  Umlaute spielen keine Rolle („heute show“, „terra-x“, „ärzte“, „boehmermann“), die Beschreibung wird nachrangig
+  durchsucht. Das Ergebnis zeigt die passenden Sendungen in einer Reihe über den Videos, Folgen passender Sendungen
+  zuerst; findet sich keine Sendung, schlägt die Suche ähnliche Namen vor („sandmänchen“ → „Sandmännchen“)
+- *Meine Sendungen*: Sendungen im Kontextmenü oder auf der Detailseite folgen, die Sendungen gesehener Videos kommen
+  automatisch dazu (entfernbar). Die Startseite zeigt *Neue Folgen meiner Sendungen*, der Tab *A–Z* die Sendungen
+- *Merkliste* für einzelne Videos, im Kontextmenü und auf der Detailseite
 - Fassungen mit Audiodeskription und Gebärdensprache werden ausgeblendet (abschaltbar)
 - Ein laufendes Video bleibt in der Vorschau sichtbar und synchron
 - Das klassische Menü bleibt erreichbar
@@ -36,7 +44,9 @@ Senderlogos u. a.
 **English:** This fork of the [MediathekView add-on](https://github.com/mediathekview/plugin.video.mediathekview)
 adds an interface like the media library apps on Fire TV, made for remote controls: a tab bar, rows of tiles with
 preview images from the websites of the media libraries and a large preview, detail pages with more episodes, "continue watching" with saved
-positions, grouped livestreams, channel pages, shows from A to Z with a filter and search. It also fixes several bugs of the
+positions, grouped livestreams, channel pages, shows from A to Z with a filter, a search by words that ignores their
+order, hyphens and the spelling of umlauts and suggests similar names, "my shows" with their new episodes and a
+watchlist. It also fixes several bugs of the
 original; among others videos without HD played in the smallest instead of the normal quality, air times were one
 hour early during daylight saving time and every view read the whole database because it had no indexes.
 

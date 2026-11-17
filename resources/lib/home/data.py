@@ -6,11 +6,14 @@ positions for "Continue watching".
 
 SPDX-License-Identifier: MIT
 """
+import difflib
 import fnmatch
 import json
 import os
+import re
 import threading
 import time
+import unicodedata
 from contextlib import closing
 from datetime import datetime, timedelta
 
@@ -37,6 +40,16 @@ KIND_BACK = 'back'
 
 ROW_MAX_ITEMS = 30
 SEARCH_MAX_ITEMS = 500
+# films read for a search before they are checked and ranked
+SEARCH_FETCH_ITEMS = 3000
+SUGGESTION_MAX_ITEMS = 6
+# new episodes of one show in the row of the home tab
+NEW_EPISODES_PER_SHOW = 4
+NEW_EPISODES_DAYS = 14
+NEW_EPISODES_MIN_DURATION = 120
+WATCHLIST_MAX_ITEMS = 100
+# seconds of a film that have to be watched before its show counts as one of "my shows"
+AUTO_FOLLOW_POSITION = 180
 SHOW_MAX_ITEMS = 500
 # rows of the home tab skip short clips like trailers and weather reports
 HOME_MIN_DURATION = 300
@@ -261,13 +274,147 @@ def show_films(db, showids, channels=None, limit=SHOW_MAX_ITEMS):
     return db.films(conditions, params, limit=limit)
 
 
+def normalize(text):
+    """ Lower case without umlauts and accents: "Ärzte" and "aerzte" are the same """
+    text = (text or '').lower()
+    for umlaut, replacement in (('ä', 'ae'), ('ö', 'oe'), ('ü', 'ue'), ('ß', 'ss')):
+        text = text.replace(umlaut, replacement)
+    return ''.join(char for char in unicodedata.normalize('NFKD', text) if not unicodedata.combining(char))
+
+
+def search_tokens(query):
+    """ The words of a search: "heute-show" and "heute show" are both ['heute', 'show'] """
+    return re.findall('[a-z0-9]+', normalize(query))
+
+
+def _like(token):
+    # LIKE only ignores the case of ASCII letters: an umlaut or its transliteration matches anything here,
+    # the films read are checked by _match
+    return '%' + re.sub('ae|oe|ue|ss', '%', token) + '%'
+
+
+def _token_rank(text, token):
+    """ 0: a word of the text starts with the token, 1: the token is inside a word, None: not found """
+    rank = None
+    position = text.find(token)
+    while position >= 0:
+        if position == 0 or not text[position - 1].isalnum():
+            return 0
+        rank = 1
+        position = text.find(token, position + 1)
+    return rank
+
+
+def _match(tokens, text):
+    """ Worst rank of the tokens in the normalized text, None unless all are found """
+    worst = 0
+    for token in tokens:
+        rank = _token_rank(text, token)
+        # short tokens like the "x" of "Terra X" only count as the start of a word
+        if rank is None or (rank and len(token) < 3):
+            return None
+        worst = max(worst, rank)
+    return worst
+
+
+def _token_conditions(tokens, columns):
+    conditions, params = [], []
+    for token in tokens:
+        conditions.append(' OR '.join('%s LIKE ?' % column for column in columns))
+        params.extend([_like(token)] * len(columns))
+    return conditions, params
+
+
 def search_films(db, query, channel=None, limit=SEARCH_MAX_ITEMS):
-    pattern = '%' + query + '%'
-    conditions, params = ['showname LIKE ? OR title LIKE ?'], [pattern, pattern]
+    """
+    Films with all words of the query in the name of the show or the title, in any order: episodes of
+    shows matching the query first, then matches of show and title, then of the title alone, newest
+    first. Matches of the description follow if there is room left.
+    """
+    tokens = search_tokens(query)
+    if not tokens:
+        return []
+    channel_condition, channel_params = (['channel = ?'], [channel]) if channel else ([], [])
+
+    def _read(columns):
+        conditions, params = _token_conditions(tokens, columns)
+        return db.films(conditions + channel_condition, params + channel_params, limit=SEARCH_FETCH_ITEMS)
+
+    ranked = []
+    for item in _read(('showname', 'title')):
+        show = normalize(item['show'])
+        rank = _match(tokens, show)
+        if rank is not None:
+            ranked.append(((0, rank), item))
+            continue
+        rank = _match(tokens, show + ' ' + normalize(item['label']))
+        if rank is not None:
+            ranked.append(((1 if any(token in show for token in tokens) else 2, rank), item))
+    # sorted() is stable: newest first within the groups
+    items = _dedupe([item for _, item in sorted(ranked, key=lambda r: r[0])], limit)
+    if len(items) < limit:
+        found = set(item['filmid'] for _, item in ranked)
+        described = [item for item in _read(('showname', 'title', 'description')) if item['filmid'] not in found
+                     and _match(tokens, ' '.join(normalize(item[key]) for key in ('show', 'label', 'plot'))) is not None]
+        # the ones of a show named in the query first, e.g. "tatort münster"
+        described.sort(key=lambda item: not any(token in normalize(item['show']) for token in tokens))
+        items = _dedupe(items + described, limit)
+    return items
+
+
+def search_shows(db, query, channel=None):
+    """ Shows with all words of the query in their name: the exact name first, then the ones with the most videos """
+    tokens = search_tokens(query)
+    if not tokens:
+        return []
+    conditions, params = _token_conditions(tokens, ('showname',))
+    conditions.append("showname <> 'LIVESTREAM'")
     if channel:
         conditions.append('channel = ?')
         params.append(channel)
-    return db.films(conditions, params, limit=limit)
+    if _settings().getNoFutur():
+        conditions.append('+aired < ?')
+        params.append(int(time.time()))
+    sql = ('SELECT showname, GROUP_CONCAT(DISTINCT showid), GROUP_CONCAT(DISTINCT channel), COUNT(*), MAX(aired) '
+           'FROM film WHERE %s GROUP BY showname' % ' AND '.join('(%s)' % c for c in conditions))
+    ranked = []
+    for name, showids, channel_list, count, latest in db.execute(sql, params):
+        if hide_variants() and 'Gebärdensprache' in (name or ''):
+            continue
+        rank = _match(tokens, normalize(name))
+        if rank is None:
+            continue
+        exact = search_tokens(name) == tokens
+        ranked.append(((0 if exact else 1, rank, -count), show_item(showids.split(','), name, channel_list.split(','), count, latest)))
+    return [item for _, item in sorted(ranked, key=lambda r: r[0])]
+
+
+def search_suggestions(db, query, channel=None):
+    """ Names of shows and words of them that are close to a query no show was found for, e.g. a typo """
+    wanted = ' '.join(search_tokens(query))
+    if not wanted:
+        return []
+    sql, params = "SELECT DISTINCT showname FROM film WHERE showname <> 'LIVESTREAM'", []
+    if channel:
+        sql += ' AND channel = ?'
+        params.append(channel)
+    candidates = {}
+    for (name,) in db.execute(sql, params):
+        candidates.setdefault(' '.join(search_tokens(name)), name)
+        for word in re.findall(r'\w+', name or ''):
+            if len(word) >= 4:
+                candidates.setdefault(normalize(word), word)
+    candidates.pop(wanted, None)
+    close = difflib.get_close_matches(wanted, list(candidates), n=SUGGESTION_MAX_ITEMS, cutoff=0.75)
+    return [candidates[key] for key in close]
+
+
+def search(db, query, channel=None):
+    """ {'shows', 'films', 'suggestions'} of a search, the suggestions only if no show was found """
+    shows = search_shows(db, query, channel)
+    films = search_films(db, query, channel)
+    suggestions = [] if shows else search_suggestions(db, query, channel)
+    return {'shows': shows, 'films': films, 'suggestions': suggestions}
 
 
 def saved_search_films(db, entry, limit=SEARCH_MAX_ITEMS):
@@ -407,7 +554,7 @@ def make_item(kind, label, **kwargs):
         'kind': kind, 'label': label, 'subtitle': '', 'plot': '', 'channel': '', 'color': '', 'logo': '', 'tile_top': '',
         'meta': '', 'message': '', 'filmid': '', 'show': '', 'showids': [], 'channels': [], 'duration': 0, 'aired': 0,
         'url': '', 'url_sd': '', 'url_hd': '', 'url_sub': '', 'progress': 0, 'resume': 0, 'action': '', 'letter': '',
-        'more': None, 'row_title': '', 'entry': None, 'key': 0, 'image': '',
+        'more': None, 'row_title': '', 'entry': None, 'key': 0, 'image': '', 'latest': 0,
     }
     item.update(kwargs)
     return item
@@ -578,7 +725,7 @@ def show_item(showids, name, channel_list, count, latest):
         color = 'FF' + DEFAULT_COLOR
     latest_text = _language(30687) % format_date(latest, with_time=False) if latest else ''
     return make_item(KIND_SHOW, name or '', show=name or '', showids=list(showids), channel=first, channels=channel_list,
-                     color=color, logo=logo, tile_top=names, subtitle=count_text(count, 30686, 30697),
+                     color=color, logo=logo, tile_top=names, subtitle=count_text(count, 30686, 30697), latest=int(latest or 0),
                      meta='  ·  '.join(x for x in (names, count_text(count, 30686, 30697), latest_text) if x))
 
 
@@ -719,8 +866,7 @@ def save_position(item, position, total):
     finished = position >= total * 0.95 or total - position < 60
     with _HISTORY_LOCK:
         history = _load_json('tvhistory.json', {})
-        stored = dict((k, v) for k, v in item.items() if k in ('kind', 'label', 'filmid', 'show', 'showids', 'channel',
-                                                                 'duration', 'aired', 'plot', 'url', 'url_sd', 'url_hd', 'url_sub'))
+        stored = dict((k, v) for k, v in item.items() if k in _STORED_KEYS)
         history[item['filmid']] = {'position': 0 if finished else int(position), 'total': int(total),
                                    'finished': finished, 'when': int(time.time()), 'item': stored}
         if len(history) > HISTORY_MAX_ITEMS:
@@ -760,6 +906,192 @@ def continue_watching(db):
             continue
         items.append(item)
     return apply_history(items, history)
+
+
+# ---------------------------------------------------------------------------
+# "My shows" and the watchlist
+# ---------------------------------------------------------------------------
+
+_FAVORITES_LOCK = threading.Lock()
+_STORED_KEYS = ('kind', 'label', 'filmid', 'show', 'showids', 'channel', 'duration', 'aired', 'plot',
+                'url', 'url_sd', 'url_hd', 'url_sub')
+
+
+def _load_favorites():
+    """ {'shows': {key: {'name', 'showids', 'channels', 'when'}}, 'hidden': [key], 'films': {filmid: {'when', 'item'}}} """
+    favorites = _load_json('tvfavorites.json', {})
+    for name, default in (('shows', {}), ('hidden', []), ('films', {})):
+        if not isinstance(favorites.get(name), type(default)):
+            favorites[name] = default
+    return favorites
+
+
+def _show_key(name):
+    return (name or '').strip().lower()
+
+
+def _show_source(item):
+    """ (name, show ids, channels) of the show of a film or a show tile, no channels: all of them """
+    channels = [c for c in item.get('channels') or [item.get('channel')] if c]
+    if item['kind'] == KIND_SHOW and len(channels) > 1:
+        channels = []
+    return item.get('show') or '', list(item.get('showids') or []), channels
+
+
+def can_follow(item):
+    name, showids, _ = _show_source(item)
+    return item['kind'] in (KIND_FILM, KIND_SHOW) and bool(name and showids) and name != 'LIVESTREAM'
+
+
+def _watched_shows(hidden):
+    """ The shows of the films the user watched, they are followed without being asked for """
+    shows = {}
+    for entry in load_history().values():
+        item = entry.get('item') or {}
+        key = _show_key(item.get('show'))
+        if not key or key in hidden or not item.get('showids') or item.get('show') == 'LIVESTREAM':
+            continue
+        if not entry.get('finished') and entry.get('position', 0) < AUTO_FOLLOW_POSITION:
+            continue
+        show = shows.setdefault(key, {'name': item['show'], 'showids': [], 'channels': [], 'when': 0})
+        show['showids'] = sorted(set(show['showids']) | set(item['showids']))
+        show['channels'] = sorted(set(show['channels']) | set([item['channel']] if item.get('channel') else []))
+        show['when'] = max(show['when'], entry.get('when', 0))
+    return shows
+
+
+def followed_shows():
+    """ {key: {'name', 'showids', 'channels', 'when'}}: the shows the user follows and the ones of the films watched """
+    with _FAVORITES_LOCK:
+        favorites = _load_favorites()
+    shows = _watched_shows(set(favorites['hidden']))
+    shows.update(favorites['shows'])
+    return shows
+
+
+def is_following(item):
+    return _show_key(item.get('show')) in followed_shows()
+
+
+def follow(item):
+    name, showids, channels = _show_source(item)
+    key = _show_key(name)
+    with _FAVORITES_LOCK:
+        favorites = _load_favorites()
+        show = favorites['shows'].get(key)
+        if show:
+            showids = sorted(set(show['showids']) | set(showids))
+            # no channels: all of them
+            channels = sorted(set(show['channels']) | set(channels)) if show['channels'] and channels else []
+        favorites['shows'][key] = {'name': name, 'showids': showids, 'channels': channels, 'when': int(time.time())}
+        favorites['hidden'] = [k for k in favorites['hidden'] if k != key]
+        _save_json('tvfavorites.json', favorites)
+
+
+def unfollow(item):
+    key = _show_key(item.get('show'))
+    with _FAVORITES_LOCK:
+        favorites = _load_favorites()
+        favorites['shows'].pop(key, None)
+        # a show of a film watched would be followed again otherwise
+        if key not in favorites['hidden']:
+            favorites['hidden'].append(key)
+        _save_json('tvfavorites.json', favorites)
+
+
+def _of_show(show, showid, channel):
+    return showid in show['showids'] and (not show['channels'] or channel in show['channels'])
+
+
+def my_shows(db):
+    """ The followed shows as tiles, the ones with the newest episodes first """
+    shows = followed_shows()
+    showids = sorted(set(showid for show in shows.values() for showid in show['showids']))
+    if not showids:
+        return []
+    sql = ("SELECT showid, channel, COUNT(*), MAX(aired) FROM film WHERE showid IN (%s) AND showname <> 'LIVESTREAM'"
+           % ','.join('?' * len(showids)))
+    params = list(showids)
+    if _settings().getNoFutur():
+        sql += ' AND +aired < ?'
+        params.append(int(time.time()))
+    rows = db.execute(sql + ' GROUP BY showid, channel', params)
+    items = []
+    for show in shows.values():
+        found = [row for row in rows if _of_show(show, row[0], row[1])]
+        if not found:
+            # no videos at the moment
+            continue
+        items.append(show_item(sorted(set(row[0] for row in found)), show['name'], sorted(set(row[1] for row in found)),
+                               sum(row[2] for row in found), max(row[3] or 0 for row in found)))
+    items.sort(key=lambda item: item['latest'], reverse=True)
+    return items
+
+
+def new_episodes(db, days=NEW_EPISODES_DAYS, limit=ROW_MAX_ITEMS, per_show=NEW_EPISODES_PER_SHOW):
+    """ New films of the followed shows the user did not start yet, newest first, a few of each show """
+    shows = followed_shows()
+    showids = sorted(set(showid for show in shows.values() for showid in show['showids']))
+    if not showids:
+        return []
+    history = load_history()
+    # no trailers
+    films = db.films(['showid IN (%s)' % ','.join('?' * len(showids)), 'aired > ?', 'duration >= ?'],
+                     showids + [db.since(days), NEW_EPISODES_MIN_DURATION], limit=SEARCH_FETCH_ITEMS)
+    counts = {}
+    items = []
+    for item in _dedupe(films, len(films)):
+        if item['filmid'] in history:
+            continue
+        key = _show_key(item['show'])
+        show = shows.get(key)
+        if not show or not _of_show(show, item['showids'][0], item['channel']):
+            continue
+        counts[key] = counts.get(key, 0) + 1
+        if per_show and counts[key] > per_show:
+            continue
+        items.append(item)
+        if len(items) >= limit:
+            break
+    return items
+
+
+def in_watchlist(filmid):
+    with _FAVORITES_LOCK:
+        return filmid in _load_favorites()['films']
+
+
+def add_to_watchlist(item):
+    if not item.get('filmid'):
+        return
+    with _FAVORITES_LOCK:
+        favorites = _load_favorites()
+        films = favorites['films']
+        films[item['filmid']] = {'when': int(time.time()), 'item': dict((k, v) for k, v in item.items() if k in _STORED_KEYS)}
+        for key in sorted(films, key=lambda k: films[k]['when'])[:max(len(films) - WATCHLIST_MAX_ITEMS, 0)]:
+            del films[key]
+        _save_json('tvfavorites.json', favorites)
+
+
+def remove_from_watchlist(filmid):
+    with _FAVORITES_LOCK:
+        favorites = _load_favorites()
+        if favorites['films'].pop(filmid, None) is not None:
+            _save_json('tvfavorites.json', favorites)
+
+
+def watchlist(db, limit=ROW_MAX_ITEMS):
+    """ The films of the watchlist that are still in the media library, the one added last first """
+    with _FAVORITES_LOCK:
+        films = _load_favorites()['films']
+    items = []
+    for filmid in sorted(films, key=lambda k: films[k]['when'], reverse=True):
+        item = film_by_id(db, filmid)
+        if item is not None:
+            items.append(item)
+        if len(items) >= limit:
+            break
+    return items
 
 
 def load_searches():

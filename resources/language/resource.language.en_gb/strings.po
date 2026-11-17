@@ -527,6 +527,26 @@ msgctxt "#30654"
 msgid "Reload"
 msgstr ""
 
+msgctxt "#30655"
+msgid "Shows"
+msgstr ""
+
+msgctxt "#30656"
+msgid "Videos"
+msgstr ""
+
+msgctxt "#30657"
+msgid "Did you mean …?"
+msgstr ""
+
+msgctxt "#30658"
+msgid "New episodes of my shows"
+msgstr ""
+
+msgctxt "#30659"
+msgid "My shows"
+msgstr ""
+
 msgctxt "#30660"
 msgid "Play"
 msgstr ""
@@ -557,6 +577,10 @@ msgstr ""
 
 msgctxt "#30667"
 msgid "More of \"%s\""
+msgstr ""
+
+msgctxt "#30668"
+msgid "Watchlist"
 msgstr ""
 
 msgctxt "#30669"
@@ -607,10 +631,18 @@ msgctxt "#30680"
 msgid "Subtitles"
 msgstr ""
 
+msgctxt "#30681"
+msgid "Add to watchlist"
+msgstr ""
+
 msgctxt "#30682"
 msgid "The database is being downloaded, after the first start this takes a few minutes."
 msgstr ""
 
+
+msgctxt "#30683"
+msgid "Remove from watchlist"
+msgstr ""
 
 msgctxt "#30684"
 msgid "%s shows"
@@ -626,6 +658,14 @@ msgstr ""
 
 msgctxt "#30687"
 msgid "Latest: %s"
+msgstr ""
+
+msgctxt "#30688"
+msgid "Follow show"
+msgstr ""
+
+msgctxt "#30689"
+msgid "Unfollow show"
 msgstr ""
 
 msgctxt "#30690"

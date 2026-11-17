@@ -26,7 +26,7 @@ MEDIA = os.path.join(SKIN, 'media')
 ICONS = os.path.join(ROOT, 'resources', 'icons')
 
 ADDON = 'plugin.video.mediathekview'
-NUM_ROWS = 10
+NUM_ROWS = 14
 
 # Colours (AARRGGBB): night blue background like the MediathekView icon, yellow accent
 BACKGROUND_RGB = (9, 18, 33)

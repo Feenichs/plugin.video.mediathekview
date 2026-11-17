@@ -528,6 +528,26 @@ msgctxt "#30654"
 msgid "Reload"
 msgstr "Neu laden"
 
+msgctxt "#30655"
+msgid "Shows"
+msgstr "Sendungen"
+
+msgctxt "#30656"
+msgid "Videos"
+msgstr "Videos"
+
+msgctxt "#30657"
+msgid "Did you mean …?"
+msgstr "Meintest du …?"
+
+msgctxt "#30658"
+msgid "New episodes of my shows"
+msgstr "Neue Folgen meiner Sendungen"
+
+msgctxt "#30659"
+msgid "My shows"
+msgstr "Meine Sendungen"
+
 msgctxt "#30660"
 msgid "Play"
 msgstr "Abspielen"
@@ -559,6 +579,10 @@ msgstr "Alle Folgen"
 msgctxt "#30667"
 msgid "More of \"%s\""
 msgstr "Mehr von „%s“"
+
+msgctxt "#30668"
+msgid "Watchlist"
+msgstr "Merkliste"
 
 msgctxt "#30669"
 msgid "Remove from \"Continue watching\""
@@ -608,10 +632,18 @@ msgctxt "#30680"
 msgid "Subtitles"
 msgstr "UT"
 
+msgctxt "#30681"
+msgid "Add to watchlist"
+msgstr "Auf die Merkliste"
+
 msgctxt "#30682"
 msgid "The database is being downloaded, after the first start this takes a few minutes."
 msgstr "Die Datenbank wird heruntergeladen. Nach dem ersten Start dauert das einige Minuten."
 
+
+msgctxt "#30683"
+msgid "Remove from watchlist"
+msgstr "Nicht mehr merken"
 
 msgctxt "#30684"
 msgid "%s shows"
@@ -628,6 +660,14 @@ msgstr "%s Videos"
 msgctxt "#30687"
 msgid "Latest: %s"
 msgstr "Neueste: %s"
+
+msgctxt "#30688"
+msgid "Follow show"
+msgstr "Sendung folgen"
+
+msgctxt "#30689"
+msgid "Unfollow show"
+msgstr "Sendung entfolgen"
 
 msgctxt "#30690"
 msgid "Mon"

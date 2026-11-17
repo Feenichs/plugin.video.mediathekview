@@ -33,7 +33,7 @@ ACTION_MOUSE_LONG_CLICK = 108
 
 NAV_LIST = 100
 ROWS_GROUPLIST = 300
-NUM_ROWS = 10
+NUM_ROWS = 14
 ROW_LISTS = tuple(range(301, 301 + NUM_ROWS))
 ROW_LABELS = tuple(range(401, 401 + NUM_ROWS))
 ROW_GROUPS = tuple(range(501, 501 + NUM_ROWS))
@@ -57,6 +57,8 @@ FILTER_DELAY = 0.4
 # a key held down repeats faster than this; Back only leaves the filter after the key was released
 FILTER_KEY_RELEASE = 0.8
 PLAYBACK_END_DELAY = 2
+# a search without a matching show: suggestions of similar names come first if fewer videos were found
+SUGGESTIONS_FIRST = 20
 WINDOW_PROPERTY = 'mediathekview_home_window'
 
 TAB_HOME = 'home'
@@ -416,9 +418,18 @@ class HomeWindow(xbmcgui.WindowXML):
         rows = self._cached(TAB_HOME, _load)
         with data.Database() as db:
             resume = data.continue_watching(db)
+            episodes = data.new_episodes(db)
+            watchlist = data.watchlist(db)
+        personal = []
         if resume:
-            rows = [{'title': _string(30620), 'items': resume}] + rows
-        return self._with_history(rows)
+            personal.append({'title': _string(30620), 'items': resume})
+        if episodes:
+            personal.append({'title': _string(30658), 'items': episodes, 'show_all': True,
+                             'more': lambda db: data.new_episodes(db, days=60, limit=data.SEARCH_MAX_ITEMS, per_show=0)})
+        if watchlist:
+            personal.append({'title': _string(30668), 'items': watchlist, 'show_all': len(watchlist) >= data.ROW_MAX_ITEMS,
+                             'more': lambda db: data.watchlist(db, limit=data.WATCHLIST_MAX_ITEMS)})
+        return self._with_history(personal + rows)
 
     def _live_rows(self):
         if not self._database_ready():
@@ -440,7 +451,12 @@ class HomeWindow(xbmcgui.WindowXML):
     def _letter_rows(self):
         if not self._database_ready():
             return []
-        rows = [{'title': _string(30634), 'items': self._cached(TAB_LETTERS, data.letters)}]
+        rows = []
+        with data.Database() as db:
+            mine = data.my_shows(db)
+        if mine:
+            rows.append({'title': _string(30659), 'items': mine, 'more': lambda db: data.my_shows(db), 'filterable': True})
+        rows.append({'title': _string(30634), 'items': self._cached(TAB_LETTERS, data.letters)})
         new = self._cached('new_shows', lambda db: data.new_shows(db, days=2, limit=data.ROW_MAX_ITEMS))
         if new:
             rows.append({'title': _string(30629), 'items': new})
@@ -514,7 +530,7 @@ class HomeWindow(xbmcgui.WindowXML):
                     continue
                 # filled rows without gaps: the preview of the tab bar shows the first tile of the first row
                 index = shown
-                if row.get('more') and len(row['items']) >= data.ROW_MAX_ITEMS:
+                if row.get('more') and (len(row['items']) >= data.ROW_MAX_ITEMS or row.get('show_all')):
                     items.append(data.make_item(data.KIND_ALL, _string(30671), row_title=row['title'], more=row['more'],
                                                 filterable=row.get('filterable', False)))
                 with self._lock:
@@ -792,6 +808,9 @@ class HomeWindow(xbmcgui.WindowXML):
             buttons.append(('quality', _string(30664)))
         if film['show'] and info['episodes']:
             buttons.append(('show', _string(30666)))
+        buttons.append(('watchlist', _string(30683 if data.in_watchlist(film['filmid']) else 30681)))
+        if data.can_follow(film):
+            buttons.append(('follow', _string(30689 if data.is_following(film) else 30688)))
         buttons.append(('download', _string(30665)))
         self._buttons = [b[0] for b in buttons]
         control = self.getControl(BUTTON_LIST)
@@ -836,6 +855,10 @@ class HomeWindow(xbmcgui.WindowXML):
                 self._play(film, resume=film['resume'], url=qualities[choice][1])
         elif action == 'show':
             self._open_show(film)
+        elif action == 'watchlist':
+            self.getControl(BUTTON_LIST).getListItem(position).setLabel(self._toggle_watchlist(film))
+        elif action == 'follow':
+            self.getControl(BUTTON_LIST).getListItem(position).setLabel(self._toggle_follow(film))
         elif action == 'download':
             self._download(film)
 
@@ -959,9 +982,15 @@ class HomeWindow(xbmcgui.WindowXML):
                 entries.append((_string(30663), lambda: self._play(item, resume=item['resume'], subtitles=True)))
             if item['show'] and item['showids']:
                 entries.append((_string(30666), lambda: self._open_show(item)))
+            entries.append((_string(30683 if data.in_watchlist(item['filmid']) else 30681),
+                            lambda: self._toggle_watchlist(item, refresh=True)))
+            if data.can_follow(item):
+                entries.append((_string(30689 if data.is_following(item) else 30688), lambda: self._toggle_follow(item, refresh=True)))
             entries.append((_string(30665), lambda: self._download(item)))
             if item['progress']:
                 entries.append((_string(30669), lambda: self._remove_history(item)))
+        elif kind == data.KIND_SHOW and data.can_follow(item):
+            entries.append((_string(30689 if data.is_following(item) else 30688), lambda: self._toggle_follow(item, refresh=True)))
         elif kind == data.KIND_LIVE:
             entries.append((_string(30660), lambda: self._play(item, live=True)))
         elif kind == data.KIND_ACTION and item['action'] == 'search_query':
@@ -983,12 +1012,12 @@ class HomeWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().notification(_string(30614), _string(30643), time=3000, sound=False)
         elif action == 'search_query':
             self._search(item['label'])
+        elif action == 'search_suggestion':
+            self._search(item['label'], item['channel'] or None)
         elif action == 'search_channel':
-            channel = item['channel']
             query = xbmcgui.Dialog().input(_string(30643)).strip()
             if len(query) >= 3:
-                name = data.channel_info(channel)[0]
-                self._open_grid('%s  ·  %s' % (name, query), lambda db: data.search_films(db, query, channel))
+                self._search(query, item['channel'])
             elif query:
                 xbmcgui.Dialog().notification(_string(30614), _string(30643), time=3000, sound=False)
         elif action == 'saved_search':
@@ -1006,14 +1035,60 @@ class HomeWindow(xbmcgui.WindowXML):
             self._cache = {}
             self._switch_tab(self._current_tab or TAB_HOME, force=True)
 
-    def _search(self, query):
-        data.save_search(query)
-        self._open_grid(query, lambda db: data.search_films(db, query))
+    def _search(self, query, channel=None):
+        """ Rows of the shows and the videos found, or of similar names if nothing was found """
+        if not channel:
+            data.save_search(query)
+        found = {}
+
+        def _rows():
+            # searched once, the view is rendered again e.g. after playback
+            if not found:
+                with data.Database() as db:
+                    found.update(data.search(db, query, channel))
+            rows = []
+            if found['shows']:
+                rows.append({'title': _string(30655), 'items': found['shows'], 'more': lambda db: found['shows'],
+                             'filterable': True})
+            if found['films']:
+                rows.append({'title': _string(30656), 'items': found['films'], 'more': lambda db: found['films']})
+            if found['suggestions']:
+                # above a few videos that only contain the words by chance
+                rows.insert(0 if len(found['films']) < SUGGESTIONS_FIRST else len(rows), {'title': _string(30657), 'items': [
+                    data.make_item(data.KIND_ACTION, suggestion, action='search_suggestion', channel=channel or '')
+                    for suggestion in found['suggestions']]})
+            return self._with_history(rows)
+
+        title = '%s  ·  %s' % (data.channel_info(channel)[0], query) if channel else query
+        self._push({'type': 'rows', 'title': title, 'rows': _rows})
 
     def _remove_search(self, query):
         data.remove_search(query)
         self._remember_focus()
         self._show_rows(lambda: self._tab_rows(TAB_SEARCH))
+
+    def _toggle_watchlist(self, item, refresh=False):
+        """ Returns the label of the action that undoes the change """
+        listed = data.in_watchlist(item['filmid'])
+        if listed:
+            data.remove_from_watchlist(item['filmid'])
+        else:
+            data.add_to_watchlist(item)
+        xbmcgui.Dialog().notification(_string(30683 if listed else 30681), item['label'], time=2500, sound=False)
+        if refresh:
+            self._refresh_view()
+        return _string(30681 if listed else 30683)
+
+    def _toggle_follow(self, item, refresh=False):
+        following = data.is_following(item)
+        if following:
+            data.unfollow(item)
+        else:
+            data.follow(item)
+        xbmcgui.Dialog().notification(_string(30689 if following else 30688), item['show'], time=2500, sound=False)
+        if refresh:
+            self._refresh_view()
+        return _string(30688 if following else 30689)
 
     def _remove_history(self, item):
         data.remove_from_history(item['filmid'])

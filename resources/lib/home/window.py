@@ -30,6 +30,12 @@ ACTION_SHOW_INFO = 11
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
 ACTION_MOUSE_LONG_CLICK = 108
+ACTION_BACKSPACE = 110
+ACTION_REMOTE_0 = 58
+ACTION_REMOTE_9 = 67
+# number keys outside of text fields, mapped to JumpSMS2..9 by many keymaps
+ACTION_JUMP_SMS2 = 142
+ACTION_JUMP_SMS9 = 149
 
 NAV_LIST = 100
 ROWS_GROUPLIST = 300
@@ -48,6 +54,8 @@ EPISODE_LIST = 720
 DETAIL_LISTS = (BUTTON_LIST, EPISODE_LIST)
 # search while typing: the keyboard of the window, space/delete/clear and the rows of results
 SEARCH_KEYBOARD = 800
+# the text of the search, a keyboard and the number keys of the remote type into it
+SEARCH_EDIT = 805
 SEARCH_SPECIAL = 801
 SEARCH_SHOWS = 811
 SEARCH_FILMS = 812
@@ -171,7 +179,7 @@ class HomeWindow(xbmcgui.WindowXML):
         action_id = action.getId()
         focus_id = self.getFocusId()
 
-        if focus_id == GRID_FILTER and action_id not in (ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT, ACTION_MOVE_UP, ACTION_MOVE_DOWN):
+        if focus_id in (GRID_FILTER, SEARCH_EDIT) and action_id not in (ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT, ACTION_MOVE_UP, ACTION_MOVE_DOWN):
             # Kodi reports no key releases: input in quick succession is a key held down, e.g. Back
             # or backspace deleting the text, it must not go on and leave the grid once the text is empty
             now = time.time()
@@ -179,13 +187,26 @@ class HomeWindow(xbmcgui.WindowXML):
             self._filter_input = now
             if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU) and held:
                 if action_id == ACTION_NAV_BACK:
-                    self._delete_filter_character()
+                    self._delete_character(focus_id)
                 return
 
         if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU):
-            if action_id == ACTION_NAV_BACK and focus_id == GRID_FILTER and self._delete_filter_character():
+            if action_id == ACTION_NAV_BACK and focus_id in (GRID_FILTER, SEARCH_EDIT) and self._delete_character(focus_id):
                 return
             self._on_back(focus_id)
+            return
+
+        if action_id == ACTION_BACKSPACE and focus_id in SEARCH_LISTS:
+            # e.g. a key of the remote that deletes in text fields while the keyboard of the window has the focus;
+            # the text field itself handles it
+            self._delete_character(SEARCH_EDIT)
+            return
+
+        number = self._number_key(action_id)
+        if focus_id in SEARCH_LISTS and number is not None:
+            # a number key on the keyboard or the results of the search types into the text, like on a phone
+            self.setFocusId(SEARCH_EDIT)
+            xbmc.executebuiltin('Action(number%d)' % number)
             return
 
         if action_id in (ACTION_CONTEXT_MENU, ACTION_MOUSE_LONG_CLICK):
@@ -235,6 +256,13 @@ class HomeWindow(xbmcgui.WindowXML):
         if control_id in (SEARCH_KEYBOARD, SEARCH_SPECIAL):
             self._type(control_id)
             return
+        if control_id == SEARCH_EDIT:
+            # every change of the text is reported as a click
+            text = self.getControl(SEARCH_EDIT).getText()[:SEARCH_MAX_LENGTH]
+            if text != self._search_text:
+                self._search_text = text
+                self._update_search()
+            return
         if control_id in (SEARCH_SHOWS, SEARCH_FILMS) and self._search_text.strip():
             # a result was chosen: the text goes into the recent searches, not for suggestions of other words
             focused = self._focused_item(control_id)
@@ -247,6 +275,14 @@ class HomeWindow(xbmcgui.WindowXML):
         item = self._focused_item(control_id)
         if item:
             self._activate(item, from_episodes=control_id == EPISODE_LIST)
+
+    @staticmethod
+    def _number_key(action_id):
+        if ACTION_REMOTE_0 <= action_id <= ACTION_REMOTE_9:
+            return action_id - ACTION_REMOTE_0
+        if ACTION_JUMP_SMS2 <= action_id <= ACTION_JUMP_SMS9:
+            return action_id - ACTION_JUMP_SMS2 + 2
+        return None
 
     # Navigation
 
@@ -294,7 +330,7 @@ class HomeWindow(xbmcgui.WindowXML):
             self.setFocusId(BUTTON_LIST)
             return
         if view == 'search':
-            self.setFocusId(SEARCH_KEYBOARD)
+            self.setFocusId(SEARCH_EDIT)
             return
         rows = [row for row in self._filled_rows() if row >= self._row_offset]
         if rows:
@@ -542,6 +578,7 @@ class HomeWindow(xbmcgui.WindowXML):
             generation = self._generation
         self._row_data = {}
         self._row_offset = 0
+        self.setProperty('text_input', '')
         for index, group_id in enumerate(ROW_GROUPS):
             self.getControl(ROW_LISTS[index]).reset()
             self.getControl(group_id).setVisible(False)
@@ -681,12 +718,15 @@ class HomeWindow(xbmcgui.WindowXML):
             self._generation += 1
         self._grid = self._detail = None
         self.setProperty('view', 'search')
+        # tells scripts of remote controls that keys deleting in text fields delete here (BackSpace)
+        self.setProperty('text_input', 'true')
         self.setProperty('page_title', '')
         self.setProperty('empty', '')
         self.setProperty('empty_text', '')
         self.setProperty('loading', '')
         keys = self.getControl(SEARCH_KEYBOARD)
         if not keys.size():
+            self.getControl(SEARCH_EDIT).setType(xbmcgui.INPUT_TYPE_TEXT, _string(30614))
             keys.addItems([xbmcgui.ListItem(label=key if key == 'ß' else key.upper(), offscreen=True) for key in SEARCH_KEYS])
             self.getControl(SEARCH_SPECIAL).addItems([xbmcgui.ListItem(label=_string(string_id), offscreen=True)
                                                        for string_id in (30636, 30637, 30638)])
@@ -697,7 +737,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self._update_search(restore=restore)
         if self._focus_rows:
             self._focus_rows = False
-            self.setFocusId(SEARCH_KEYBOARD)
+            self.setFocusId(SEARCH_EDIT)
         index = self._show_index
         if index is None or time.time() - index[0] > SHOW_INDEX_SECONDS:
             self._start(self._load_show_index)
@@ -758,7 +798,10 @@ class HomeWindow(xbmcgui.WindowXML):
             self._search_seq += 1
             seq = self._search_seq
         text = self._search_text
-        self.setProperty('search_text', text)
+        edit = self.getControl(SEARCH_EDIT)
+        # not while the user types into it, the text may be ahead
+        if self.getFocusId() != SEARCH_EDIT and edit.getText() != text:
+            edit.setText(text)
         query = text.strip()
         if not query:
             history = [data.make_item(data.KIND_ACTION, q, action='search_query') for q in data.load_searches()]
@@ -858,6 +901,7 @@ class HomeWindow(xbmcgui.WindowXML):
         filterable = source.get('filterable', False)
         query = source.get('query', '') if filterable else ''
         self.setProperty('view', 'grid')
+        self.setProperty('text_input', '')
         self.setProperty('page_title', title)
         self.setProperty('filter', 'true' if filterable else '')
         self.setProperty('empty', '')
@@ -930,14 +974,18 @@ class HomeWindow(xbmcgui.WindowXML):
         self._restore = None
         self._render(self._stack[-1])
 
-    def _delete_filter_character(self):
-        """ Back on the remote deletes the last character, an empty filter leaves the grid """
-        edit = self.getControl(GRID_FILTER)
+    def _delete_character(self, control_id):
+        """ Back on the remote deletes the last character, with an empty text it leaves the grid or the search """
+        edit = self.getControl(control_id)
         text = edit.getText()
         if not text:
             return False
         edit.setText(text[:-1])
-        self._schedule_filter(text[:-1])
+        if control_id == SEARCH_EDIT:
+            self._search_text = text[:-1]
+            self._update_search()
+        else:
+            self._schedule_filter(text[:-1])
         return True
 
     # Detail page
@@ -951,6 +999,7 @@ class HomeWindow(xbmcgui.WindowXML):
             generation = self._generation
         item = view['item']
         self.setProperty('view', 'detail')
+        self.setProperty('text_input', '')
         self.setProperty('page_title', '')
         self.setProperty('empty', '')
         self.setProperty('empty_text', '')

@@ -1028,30 +1028,27 @@ SEARCH_TEMPLATE = '''
         <!-- Search while typing -->
         <control type="group">
             <visible>String.IsEqual(Window.Property(view),search)</visible>
-            <control type="image">
+            <!-- the text of the search: a keyboard and the number keys of the remote (like on a phone) type
+                 directly into it, OK opens Kodi's keyboard; the keys below change it too -->
+            <control type="edit" id="805">
                 <left>{left}</left><top>140</top><width>{width}</width><height>72</height>
-                <texture border="28" colordiffuse="26FFFFFF">mv_pill.png</texture>
-            </control>
-            <control type="label">
-                <left>{text_left}</left><top>140</top><width>{text_width}</width><height>72</height>
-                <aligny>center</aligny>
                 <font>font14</font>
                 <textcolor>{text}</textcolor>
-                <label>$INFO[Window.Property(search_text)][COLOR {accent}]|[/COLOR]</label>
-                <visible>!String.IsEmpty(Window.Property(search_text))</visible>
-            </control>
-            <control type="label">
-                <left>{text_left}</left><top>140</top><width>{text_width}</width><height>72</height>
+                <focusedcolor>{dark}</focusedcolor>
+                <textoffsetx>30</textoffsetx>
                 <aligny>center</aligny>
-                <font>font13</font>
-                <textcolor>{dim}</textcolor>
-                <label>{hint}</label>
-                <visible>String.IsEmpty(Window.Property(search_text))</visible>
+                <texturefocus border="28" colordiffuse="FFFFFFFF">mv_pill.png</texturefocus>
+                <texturenofocus border="28" colordiffuse="26FFFFFF">mv_pill.png</texturenofocus>
+                <hinttext>[COLOR {dim}]{hint}[/COLOR]</hinttext>
+                <onup>100</onup>
+                <ondown>800</ondown>
+                <onleft>805</onleft>
+                {right}
             </control>
             <control type="panel" id="800">
                 <left>{left}</left><top>{top}</top><width>{width}</width><height>{keys_height}</height>
                 <orientation>vertical</orientation>
-                <onup>100</onup>
+                <onup>805</onup>
                 <ondown>801</ondown>
                 <onleft>800</onleft>
                 {right}
@@ -1094,7 +1091,7 @@ def search_view():
             search_focused_item(812))
     return SEARCH_TEMPLATE.format(
         left=SEARCH_LEFT, top=SEARCH_TOP, width=width, text_left=SEARCH_LEFT + 30, text_width=width - 60,
-        text=TEXT, dim=TEXT_DIM, accent=ACCENT, hint=localize(30649), key=SEARCH_KEY, keys_height=keys_height,
+        text=TEXT, dim=TEXT_DIM, dark=TEXT_DARK, hint=localize(30649), key=SEARCH_KEY, keys_height=keys_height,
         right=right, special_top=SEARCH_TOP + keys_height + 8, special=SEARCH_SPECIAL_WIDTH,
         status_top=SEARCH_TOP + keys_height + SEARCH_KEY + 30,
         key_item=search_key_layout(800, False, SEARCH_KEY, SEARCH_KEY, 'font14'),

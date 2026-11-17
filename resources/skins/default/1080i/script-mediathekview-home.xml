@@ -8395,30 +8395,27 @@
         <!-- Search while typing -->
         <control type="group">
             <visible>String.IsEqual(Window.Property(view),search)</visible>
-            <control type="image">
+            <!-- the text of the search: a keyboard and the number keys of the remote (like on a phone) type
+                 directly into it, OK opens Kodi's keyboard; the keys below change it too -->
+            <control type="edit" id="805">
                 <left>68</left><top>140</top><width>576</width><height>72</height>
-                <texture border="28" colordiffuse="26FFFFFF">mv_pill.png</texture>
-            </control>
-            <control type="label">
-                <left>98</left><top>140</top><width>516</width><height>72</height>
-                <aligny>center</aligny>
                 <font>font14</font>
                 <textcolor>FFFFFFFF</textcolor>
-                <label>$INFO[Window.Property(search_text)][COLOR FFFFC61A]|[/COLOR]</label>
-                <visible>!String.IsEmpty(Window.Property(search_text))</visible>
-            </control>
-            <control type="label">
-                <left>98</left><top>140</top><width>516</width><height>72</height>
+                <focusedcolor>FF091221</focusedcolor>
+                <textoffsetx>30</textoffsetx>
                 <aligny>center</aligny>
-                <font>font13</font>
-                <textcolor>FF8FA3BF</textcolor>
-                <label>$ADDON[plugin.video.mediathekview 30649]</label>
-                <visible>String.IsEmpty(Window.Property(search_text))</visible>
+                <texturefocus border="28" colordiffuse="FFFFFFFF">mv_pill.png</texturefocus>
+                <texturenofocus border="28" colordiffuse="26FFFFFF">mv_pill.png</texturenofocus>
+                <hinttext>[COLOR FF8FA3BF]$ADDON[plugin.video.mediathekview 30649][/COLOR]</hinttext>
+                <onup>100</onup>
+                <ondown>800</ondown>
+                <onleft>805</onleft>
+                <onright condition="Integer.IsGreater(Container(811).NumItems,0)">811</onright><onright condition="!Integer.IsGreater(Container(811).NumItems,0) + Integer.IsGreater(Container(812).NumItems,0)">812</onright>
             </control>
             <control type="panel" id="800">
                 <left>68</left><top>236</top><width>576</width><height>360</height>
                 <orientation>vertical</orientation>
-                <onup>100</onup>
+                <onup>805</onup>
                 <ondown>801</ondown>
                 <onleft>800</onleft>
                 <onright condition="Integer.IsGreater(Container(811).NumItems,0)">811</onright><onright condition="!Integer.IsGreater(Container(811).NumItems,0) + Integer.IsGreater(Container(812).NumItems,0)">812</onright>

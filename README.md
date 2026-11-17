@@ -30,7 +30,8 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
   zuerst; findet sich keine Sendung, schlägt die Suche ähnliche Namen vor („sandmänchen“ → „Sandmännchen“)
 - Suche während der Eingabe: der Tab *Suche* hat eine eigene Tastatur, mit jedem Buchstaben erscheinen die passenden
   Sendungen, nach einer kurzen Pause ab 3 Zeichen auch die Videos; ohne Text zeigt er die letzten und die
-  gespeicherten Suchen
+  gespeicherten Suchen. Ins Suchfeld schreibt man auch mit einer Tastatur oder den Zifferntasten der
+  Fernbedienung (wie beim Handy), OK öffnet die Kodi-Tastatur, Zurück löscht das letzte Zeichen
 - *Meine Sendungen*: Sendungen im Kontextmenü oder auf der Detailseite folgen, die Sendungen gesehener Videos kommen
   automatisch dazu (entfernbar). Die Startseite zeigt *Neue Folgen meiner Sendungen*, der Tab *A–Z* die Sendungen
 - *Merkliste* für einzelne Videos, im Kontextmenü und auf der Detailseite

@@ -472,6 +472,22 @@ msgctxt "#30635"
 msgid "Latest videos"
 msgstr "Neueste Videos"
 
+msgctxt "#30636"
+msgid "Space"
+msgstr "Leerzeichen"
+
+msgctxt "#30637"
+msgid "Delete"
+msgstr "Löschen"
+
+msgctxt "#30638"
+msgid "Clear"
+msgstr "Leeren"
+
+msgctxt "#30639"
+msgid "Videos are searched from 3 characters on"
+msgstr "Videos werden ab 3 Zeichen gesucht"
+
 msgctxt "#30640"
 msgid "New search"
 msgstr "Neue Suche"
@@ -507,6 +523,10 @@ msgstr "Sendung finden …"
 msgctxt "#30648"
 msgid "No show contains \"%s\"."
 msgstr "Keine Sendung enthält „%s“."
+
+msgctxt "#30649"
+msgid "Type to search …"
+msgstr "Suchbegriff eingeben …"
 
 msgctxt "#30650"
 msgid "Settings"

@@ -28,6 +28,9 @@ eine Oberfläche wie die Mediathek-Apps auf Fire TV, gemacht für die Fernbedien
   Umlaute spielen keine Rolle („heute show“, „terra-x“, „ärzte“, „boehmermann“), die Beschreibung wird nachrangig
   durchsucht. Das Ergebnis zeigt die passenden Sendungen in einer Reihe über den Videos, Folgen passender Sendungen
   zuerst; findet sich keine Sendung, schlägt die Suche ähnliche Namen vor („sandmänchen“ → „Sandmännchen“)
+- Suche während der Eingabe: der Tab *Suche* hat eine eigene Tastatur, mit jedem Buchstaben erscheinen die passenden
+  Sendungen, nach einer kurzen Pause ab 3 Zeichen auch die Videos; ohne Text zeigt er die letzten und die
+  gespeicherten Suchen
 - *Meine Sendungen*: Sendungen im Kontextmenü oder auf der Detailseite folgen, die Sendungen gesehener Videos kommen
   automatisch dazu (entfernbar). Die Startseite zeigt *Neue Folgen meiner Sendungen*, der Tab *A–Z* die Sendungen
 - *Merkliste* für einzelne Videos, im Kontextmenü und auf der Detailseite
@@ -45,7 +48,7 @@ Senderlogos u. a.
 adds an interface like the media library apps on Fire TV, made for remote controls: a tab bar, rows of tiles with
 preview images from the websites of the media libraries and a large preview, detail pages with more episodes, "continue watching" with saved
 positions, grouped livestreams, channel pages, shows from A to Z with a filter, a search by words that ignores their
-order, hyphens and the spelling of umlauts and suggests similar names, "my shows" with their new episodes and a
+order, hyphens and the spelling of umlauts, shows results while typing and suggests similar names, "my shows" with their new episodes and a
 watchlist. It also fixes several bugs of the
 original; among others videos without HD played in the smallest instead of the normal quality, air times were one
 hour early during daylight saving time and every view read the whole database because it had no indexes.

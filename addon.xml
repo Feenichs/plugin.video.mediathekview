@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.1.3~tv17"
+	version="1.1.3~tv18"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -34,6 +34,8 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.3~tv18 (2026-11-17):
+- [new] TV interface: search while typing: the search tab has its own keyboard, the matching shows appear with every letter, the videos after a short pause from 3 characters on; without text it shows the recent and the saved searches, typos get suggestions of similar names
 v.1.1.3~tv17 (2026-11-17):
 - [new] TV interface: the search finds the words of the query in any order in the name of the show and the title ("lanz markus", "tatort münster"), ignores hyphens and the case and spelling of umlauts ("heute show", "terra-x", "ärzte", "boehmermann") and also searches the descriptions; it shows the matching shows in a row above the videos, episodes of matching shows first, and suggests similar names if no show was found ("sandmänchen")
 - [new] TV interface: "My shows": follow a show in the context menu or on the detail page, the shows of the films watched are followed automatically; the home tab shows "New episodes of my shows", the A–Z tab "My shows"

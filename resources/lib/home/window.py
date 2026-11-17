@@ -46,6 +46,21 @@ GRID_FILTER = 610
 BUTTON_LIST = 700
 EPISODE_LIST = 720
 DETAIL_LISTS = (BUTTON_LIST, EPISODE_LIST)
+# search while typing: the keyboard of the window, space/delete/clear and the rows of results
+SEARCH_KEYBOARD = 800
+SEARCH_SPECIAL = 801
+SEARCH_SHOWS = 811
+SEARCH_FILMS = 812
+SEARCH_LISTS = (SEARCH_KEYBOARD, SEARCH_SPECIAL, SEARCH_SHOWS, SEARCH_FILMS)
+SEARCH_KEYS = 'abcdefghijklmnopqrstuvwxyzäöüß0123456789'
+SEARCH_MAX_LENGTH = 60
+# the videos are searched after a pause in typing, from this many characters on
+SEARCH_DELAY = 0.8
+SEARCH_MIN_VIDEOS = 3
+SEARCH_MIN_SUGGESTIONS = 4
+SEARCH_CACHE_ITEMS = 30
+# the names of all shows for the search are read again after a while
+SHOW_INDEX_SECONDS = 3600
 
 CACHE_SECONDS = 300
 # tiles per grid page, independent of the page size of the listings,
@@ -123,6 +138,14 @@ class HomeWindow(xbmcgui.WindowXML):
         self._closing = False
         self._refresh_pending = False
         self._window_id = None
+        self._search_text = ''
+        self._search_items = {}
+        self._search_found = {}
+        self._search_seq = 0
+        self._search_timer = None
+        self._show_index = None
+        self._index_loading = False
+        self._followed = set()
         self._player = _Player(self._on_playback_end)
         self._images = _ImageLoader(self)
 
@@ -209,6 +232,14 @@ class HomeWindow(xbmcgui.WindowXML):
         if control_id == BUTTON_LIST:
             self._on_button()
             return
+        if control_id in (SEARCH_KEYBOARD, SEARCH_SPECIAL):
+            self._type(control_id)
+            return
+        if control_id in (SEARCH_SHOWS, SEARCH_FILMS) and self._search_text.strip():
+            # a result was chosen: the text goes into the recent searches, not for suggestions of other words
+            focused = self._focused_item(control_id)
+            if focused and focused['kind'] != data.KIND_ACTION:
+                data.save_search(self._search_text.strip())
         if control_id == GRID_FILTER:
             # the edit control reports every change of its text as a click
             self._schedule_filter(self.getControl(GRID_FILTER).getText())
@@ -233,6 +264,9 @@ class HomeWindow(xbmcgui.WindowXML):
         if self._stack:
             self._close_view()
             return
+        if focus_id in (SEARCH_SHOWS, SEARCH_FILMS):
+            self.setFocusId(SEARCH_KEYBOARD)
+            return
         if focus_id != NAV_LIST:
             self._set_row_offset(0)
             self.setFocusId(NAV_LIST)
@@ -243,7 +277,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self._closing = True
         with self._lock:
             self._generation += 1
-        for timer in (self._tab_timer, self._filter_timer):
+        for timer in (self._tab_timer, self._filter_timer, self._search_timer):
             if timer:
                 timer.cancel()
         self.close()
@@ -258,6 +292,9 @@ class HomeWindow(xbmcgui.WindowXML):
             return
         if view == 'detail':
             self.setFocusId(BUTTON_LIST)
+            return
+        if view == 'search':
+            self.setFocusId(SEARCH_KEYBOARD)
             return
         rows = [row for row in self._filled_rows() if row >= self._row_offset]
         if rows:
@@ -364,9 +401,16 @@ class HomeWindow(xbmcgui.WindowXML):
             nav = self.getControl(NAV_LIST)
             for position, tab in enumerate(self._tabs):
                 nav.getListItem(position).setProperty('active', 'true' if tab['id'] == tab_id else '')
-            self._show_rows(lambda: self._tab_rows(tab_id))
+            self._show_tab(tab_id)
         if focus_rows:
             self._focus_content()
+
+    def _show_tab(self, tab_id):
+        if tab_id == TAB_SEARCH:
+            self._show_search()
+            return
+        self.setProperty('view', 'tab')
+        self._show_rows(lambda: self._tab_rows(tab_id))
 
     def _tab_rows(self, tab_id):
         if tab_id == TAB_HOME:
@@ -377,8 +421,6 @@ class HomeWindow(xbmcgui.WindowXML):
             return self._channel_list_rows()
         if tab_id == TAB_LETTERS:
             return self._letter_rows()
-        if tab_id == TAB_SEARCH:
-            return self._search_rows()
         if tab_id == TAB_MORE:
             return self._more_rows()
         return []
@@ -460,18 +502,6 @@ class HomeWindow(xbmcgui.WindowXML):
         new = self._cached('new_shows', lambda db: data.new_shows(db, days=2, limit=data.ROW_MAX_ITEMS))
         if new:
             rows.append({'title': _string(30629), 'items': new})
-        return rows
-
-    def _search_rows(self):
-        rows = [{'title': _string(30614), 'items': [data.make_item(data.KIND_ACTION, _string(30640), action='search')]}]
-        history = data.load_searches()
-        if history:
-            rows.append({'title': _string(30641), 'items': [
-                data.make_item(data.KIND_ACTION, query, action='search_query') for query in history]})
-        saved = data.saved_searches()
-        if saved:
-            rows.append({'title': _string(30642), 'items': [
-                data.make_item(data.KIND_ACTION, entry.get('name') or '?', action='saved_search', entry=entry) for entry in saved]})
         return rows
 
     def _more_rows(self):
@@ -566,7 +596,7 @@ class HomeWindow(xbmcgui.WindowXML):
         """ Open a view, remembering the focused tile to return to it """
         focus_id = self.getFocusId()
         position = None
-        if focus_id in ROW_LISTS + (GRID_PANEL,) + DETAIL_LISTS:
+        if focus_id in ROW_LISTS + (GRID_PANEL,) + DETAIL_LISTS + SEARCH_LISTS:
             position = (focus_id, self.getControl(focus_id).getSelectedPosition(), self._row_offset)
         if self._stack:
             self._stack[-1]['focus'] = position
@@ -587,7 +617,7 @@ class HomeWindow(xbmcgui.WindowXML):
         self.setProperty('page_title', '')
         self._restore = self._tab_focus
         self._focus_rows = not self._restore
-        self._show_rows(lambda: self._tab_rows(self._current_tab))
+        self._show_tab(self._current_tab)
 
     def _render(self, view):
         kind = view['type']
@@ -642,6 +672,178 @@ class HomeWindow(xbmcgui.WindowXML):
 
     def _open_all(self, item):
         self._open_grid(item['row_title'] or _string(30671), item['more'], filterable=item.get('filterable', False))
+
+    # Search while typing
+
+    def _show_search(self, restore=True):
+        """ The search tab: the keyboard of the window and the results of the text typed so far """
+        with self._lock:
+            self._generation += 1
+        self._grid = self._detail = None
+        self.setProperty('view', 'search')
+        self.setProperty('page_title', '')
+        self.setProperty('empty', '')
+        self.setProperty('empty_text', '')
+        self.setProperty('loading', '')
+        keys = self.getControl(SEARCH_KEYBOARD)
+        if not keys.size():
+            keys.addItems([xbmcgui.ListItem(label=key if key == 'ß' else key.upper(), offscreen=True) for key in SEARCH_KEYS])
+            self.getControl(SEARCH_SPECIAL).addItems([xbmcgui.ListItem(label=_string(string_id), offscreen=True)
+                                                       for string_id in (30636, 30637, 30638)])
+        self._followed = set(data.followed_shows())
+        for list_id in (SEARCH_KEYBOARD, SEARCH_SPECIAL):
+            control = self.getControl(list_id)
+            self._restore_focus(list_id, control, control.size())
+        self._update_search(restore=restore)
+        if self._focus_rows:
+            self._focus_rows = False
+            self.setFocusId(SEARCH_KEYBOARD)
+        index = self._show_index
+        if index is None or time.time() - index[0] > SHOW_INDEX_SECONDS:
+            self._start(self._load_show_index)
+
+    def _load_show_index(self):
+        with self._lock:
+            if self._index_loading:
+                return
+            self._index_loading = True
+        try:
+            if not self._database_ready():
+                return
+            with data.Database() as db:
+                index = data.show_index(db)
+            self._show_index = (time.time(), index)
+        finally:
+            self._index_loading = False
+        if not self._closing and self.getProperty('view') == 'search':
+            self._update_search()
+
+    def _type(self, control_id):
+        """ A key of the keyboard of the search """
+        position = self.getControl(control_id).getSelectedPosition()
+        text = self._search_text
+        if control_id == SEARCH_KEYBOARD:
+            if 0 <= position < len(SEARCH_KEYS) and len(text) < SEARCH_MAX_LENGTH:
+                text += SEARCH_KEYS[position]
+        elif position == 0:
+            if text and not text.endswith(' ') and len(text) < SEARCH_MAX_LENGTH:
+                text += ' '
+        elif position == 1:
+            text = text[:-1]
+        elif position == 2:
+            text = ''
+        if text != self._search_text:
+            self._search_text = text
+            self._update_search()
+
+    def _set_search_text(self, text):
+        """ A recent search or a suggestion was chosen: its results, the focus on the first row of them """
+        self._search_text = text[:SEARCH_MAX_LENGTH]
+        self._update_search()
+        for list_id in (SEARCH_SHOWS, SEARCH_FILMS):
+            if self._search_items.get(list_id):
+                self.getControl(list_id).selectItem(0)
+                self.setFocusId(list_id)
+                return
+        self.setFocusId(SEARCH_KEYBOARD)
+
+    def _update_search(self, restore=False):
+        """
+        Results of the text typed so far: the shows at once from the index in memory, the videos after a
+        pause in typing; until then the videos found before that still contain the words remain
+        """
+        if self._search_timer:
+            self._search_timer.cancel()
+        with self._lock:
+            self._search_seq += 1
+            seq = self._search_seq
+        text = self._search_text
+        self.setProperty('search_text', text)
+        query = text.strip()
+        if not query:
+            history = [data.make_item(data.KIND_ACTION, q, action='search_query') for q in data.load_searches()]
+            saved = [data.make_item(data.KIND_ACTION, entry.get('name') or '?', action='saved_search', entry=entry)
+                     for entry in data.saved_searches()]
+            self._fill_search(seq, (_string(30641), history), (_string(30642), saved), '', restore)
+            return
+        index = self._show_index
+        shows = data.match_shows(index[1], query, self._followed) if index else []
+        found = self._search_found.get(query)
+        if found is None:
+            # the videos shown that still contain the words, e.g. after another letter
+            films = [item for item in self._search_items.get(SEARCH_FILMS, []) if item['kind'] == data.KIND_FILM
+                     and data.film_matches(item, query)] if len(query) >= SEARCH_MIN_VIDEOS else []
+            suggestions = []
+        else:
+            films, suggestions = found
+        row1 = (_string(30655), shows)
+        if not shows and suggestions:
+            row1 = (_string(30657), [data.make_item(data.KIND_ACTION, suggestion, action='search_replace')
+                                     for suggestion in suggestions])
+        searching = found is None and (len(query) >= SEARCH_MIN_VIDEOS or (index is not None and not shows))
+        if index is None or searching:
+            status = _string(30675)
+        elif len(query) < SEARCH_MIN_VIDEOS and found is None:
+            status = _string(30639)
+        elif not shows and not films and not suggestions:
+            status = _string(30676)
+        else:
+            status = ''
+        self._fill_search(seq, row1, (_string(30656), self._film_row(films, query)), status, restore)
+        if searching:
+            timer = threading.Timer(SEARCH_DELAY, lambda: self._start(self._search_videos, query, seq))
+            timer.daemon = True
+            self._search_timer = timer
+            timer.start()
+
+    def _search_videos(self, query, seq):
+        if self._closing or seq != self._search_seq:
+            return
+        with data.Database() as db:
+            films = data.search_films(db, query)
+        if seq != self._search_seq:
+            return
+        index = self._show_index
+        suggestions = []
+        if index and len(query) >= SEARCH_MIN_SUGGESTIONS and not data.match_shows(index[1], query, limit=1):
+            suggestions = data.index_suggestions(index[1], query)
+        if len(self._search_found) > SEARCH_CACHE_ITEMS:
+            self._search_found.clear()
+        self._search_found[query] = (films, suggestions)
+        if not self._closing and seq == self._search_seq and self.getProperty('view') == 'search':
+            self._update_search()
+
+    def _film_row(self, films, query):
+        items = data.apply_history(list(films[:data.ROW_MAX_ITEMS]))
+        if len(films) > data.ROW_MAX_ITEMS:
+            items.append(data.make_item(data.KIND_ALL, _string(30671), row_title=query, more=lambda db: films))
+        return items
+
+    def _fill_search(self, seq, row1, row2, status, restore):
+        with self._lock:
+            if self._closing or seq != self._search_seq or self.getProperty('view') != 'search':
+                return
+            self.setProperty('search_status', status)
+            for list_id, number, (title, items) in ((SEARCH_SHOWS, 1, row1), (SEARCH_FILMS, 2, row2)):
+                self._fill_search_row(list_id, number, title, items, restore)
+            focus = self.getFocusId()
+            if focus in (SEARCH_SHOWS, SEARCH_FILMS) and not self._search_items.get(focus):
+                self.setFocusId(SEARCH_KEYBOARD)
+
+    def _fill_search_row(self, list_id, number, title, items, restore):
+        """ A row is only filled again if its tiles changed, the focus stays on the tile it is on """
+        def _key(item):
+            return item['kind'], item['label'], item['filmid'], tuple(item['showids']), item['progress']
+
+        current = self._search_items.get(list_id, [])
+        self.setProperty('search_row%d' % number, title if items else '')
+        control = self.getControl(list_id)
+        if [_key(i) for i in current] != [_key(i) for i in items] or not control.size() and items:
+            self._search_items[list_id] = items
+            control.reset()
+            self._add_items(control, items)
+        if restore:
+            self._restore_focus(list_id, control, len(items))
 
     # Grid
 
@@ -938,6 +1140,8 @@ class HomeWindow(xbmcgui.WindowXML):
             items = self._row_data.get(control_id) or []
         elif control_id == EPISODE_LIST:
             items = (self._detail or {}).get('episodes') or []
+        elif control_id in (SEARCH_SHOWS, SEARCH_FILMS):
+            items = self._search_items.get(control_id) or []
         else:
             return None
         position = self.getControl(control_id).getSelectedPosition()
@@ -1010,6 +1214,8 @@ class HomeWindow(xbmcgui.WindowXML):
                 self._search(query)
             elif query:
                 xbmcgui.Dialog().notification(_string(30614), _string(30643), time=3000, sound=False)
+        elif action in ('search_query', 'search_replace') and self.getProperty('view') == 'search':
+            self._set_search_text(item['label'])
         elif action == 'search_query':
             self._search(item['label'])
         elif action == 'search_suggestion':
@@ -1033,6 +1239,8 @@ class HomeWindow(xbmcgui.WindowXML):
             xbmc.executebuiltin('RunPlugin(plugin://%s/?mode=action-dbupdate)' % addon_id)
         elif action == 'refresh':
             self._cache = {}
+            self._show_index = None
+            self._search_found = {}
             self._switch_tab(self._current_tab or TAB_HOME, force=True)
 
     def _search(self, query, channel=None):
@@ -1065,7 +1273,7 @@ class HomeWindow(xbmcgui.WindowXML):
     def _remove_search(self, query):
         data.remove_search(query)
         self._remember_focus()
-        self._show_rows(lambda: self._tab_rows(TAB_SEARCH))
+        self._update_search(restore=True)
 
     def _toggle_watchlist(self, item, refresh=False):
         """ Returns the label of the action that undoes the change """
@@ -1180,13 +1388,13 @@ class HomeWindow(xbmcgui.WindowXML):
         if self._stack:
             self._render(self._stack[-1])
         elif self._current_tab:
-            self._show_rows(lambda: self._tab_rows(self._current_tab))
+            self._show_tab(self._current_tab)
 
     # Helpers
 
     def _remember_focus(self):
         focus_id = self.getFocusId()
-        if focus_id in ROW_LISTS + (GRID_PANEL,) + DETAIL_LISTS:
+        if focus_id in ROW_LISTS + (GRID_PANEL,) + DETAIL_LISTS + SEARCH_LISTS:
             self._restore = (focus_id, self.getControl(focus_id).getSelectedPosition(), self._row_offset)
         else:
             self._restore = None

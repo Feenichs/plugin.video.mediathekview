@@ -409,6 +409,75 @@ def search_suggestions(db, query, channel=None):
     return [candidates[key] for key in close]
 
 
+def film_matches(item, query):
+    """ Whether a film found before contains all words of the query, e.g. after another letter was typed """
+    tokens = search_tokens(query)
+    return bool(tokens) and _match(tokens, ' '.join(normalize(item[key]) for key in ('show', 'label', 'plot'))) is not None
+
+
+def show_index(db):
+    """
+    All shows for the live search while typing: (normalized name, name, show ids, channels, videos, newest),
+    read once, the matching runs in memory
+    """
+    sql = ('SELECT showname, GROUP_CONCAT(DISTINCT showid), GROUP_CONCAT(DISTINCT channel), COUNT(*), MAX(aired) '
+           "FROM film WHERE showname <> 'LIVESTREAM'")
+    params = []
+    if _settings().getNoFutur():
+        sql += ' AND +aired < ?'
+        params.append(int(time.time()))
+    index = []
+    for name, showids, channel_list, count, latest in db.execute(sql + ' GROUP BY showname', params):
+        if not name or (hide_variants() and 'Gebärdensprache' in name):
+            continue
+        index.append((' '.join(search_tokens(name)), name, showids.split(','), channel_list.split(','), count, latest))
+    return index
+
+
+def match_shows(index, query, followed=(), limit=ROW_MAX_ITEMS):
+    """
+    Shows of the index matching what was typed so far, the last word may be incomplete: the exact name
+    first, then names starting with the text, then names with a word starting with it, then the others;
+    followed shows and the ones with more videos first within these groups
+    """
+    tokens = search_tokens(query)
+    if not tokens:
+        return []
+    text = ' '.join(tokens)
+    ranked = []
+    for entry in index:
+        name = entry[0]
+        rank = _match(tokens, name)
+        if rank is None:
+            continue
+        if name == text:
+            group = 0
+        elif name.startswith(text):
+            group = 1
+        else:
+            group = 2 + rank
+        ranked.append(((group, _show_key(entry[1]) not in followed, -entry[4]), entry))
+    ranked.sort(key=lambda r: r[0])
+    return [show_item(showids, name, channel_list, count, latest)
+            for _, (_, name, showids, channel_list, count, latest) in ranked[:limit]]
+
+
+def index_suggestions(index, query):
+    """ Names of shows and words of them close to a query no show was found for, from the index """
+    wanted = ' '.join(search_tokens(query))
+    if not wanted:
+        return []
+    candidates = {}
+    for entry in index:
+        candidates.setdefault(entry[0], entry[1])
+        for word in re.findall(r'\w+', entry[1]):
+            if len(word) >= 4:
+                candidates.setdefault(normalize(word), word)
+    candidates.pop(wanted, None)
+    close = difflib.get_close_matches(wanted, list(candidates), n=SUGGESTION_MAX_ITEMS, cutoff=0.75)
+    return [candidates[key] for key in close]
+
+
 def search(db, query, channel=None):
     """ {'shows', 'films', 'suggestions'} of a search, the suggestions only if no show was found """
     shows = search_shows(db, query, channel)

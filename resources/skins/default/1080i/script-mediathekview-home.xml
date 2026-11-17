@@ -8391,6 +8391,1175 @@
             </control>
         </control>
 
+
+        <!-- Search while typing -->
+        <control type="group">
+            <visible>String.IsEqual(Window.Property(view),search)</visible>
+            <control type="image">
+                <left>68</left><top>140</top><width>576</width><height>72</height>
+                <texture border="28" colordiffuse="26FFFFFF">mv_pill.png</texture>
+            </control>
+            <control type="label">
+                <left>98</left><top>140</top><width>516</width><height>72</height>
+                <aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[Window.Property(search_text)][COLOR FFFFC61A]|[/COLOR]</label>
+                <visible>!String.IsEmpty(Window.Property(search_text))</visible>
+            </control>
+            <control type="label">
+                <left>98</left><top>140</top><width>516</width><height>72</height>
+                <aligny>center</aligny>
+                <font>font13</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <label>$ADDON[plugin.video.mediathekview 30649]</label>
+                <visible>String.IsEmpty(Window.Property(search_text))</visible>
+            </control>
+            <control type="panel" id="800">
+                <left>68</left><top>236</top><width>576</width><height>360</height>
+                <orientation>vertical</orientation>
+                <onup>100</onup>
+                <ondown>801</ondown>
+                <onleft>800</onleft>
+                <onright condition="Integer.IsGreater(Container(811).NumItems,0)">811</onright><onright condition="!Integer.IsGreater(Container(811).NumItems,0) + Integer.IsGreater(Container(812).NumItems,0)">812</onright>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="72" height="72">
+            <control type="image">
+                <left>4</left><top>4</top><width>64</width><height>64</height>
+                <texture border="16" colordiffuse="1FFFFFFF">mv_rounded.png</texture>
+                <visible>true</visible>
+            </control>
+            <control type="label">
+                <width>72</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font><textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>true</visible>
+            </control>
+                </itemlayout>
+                <focusedlayout width="72" height="72">
+            <control type="image">
+                <left>4</left><top>4</top><width>64</width><height>64</height>
+                <texture border="16" colordiffuse="1FFFFFFF">mv_rounded.png</texture>
+                <visible>!Control.HasFocus(800)</visible>
+            </control>
+            <control type="label">
+                <width>72</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font><textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>!Control.HasFocus(800)</visible>
+            </control>
+            <control type="image">
+                <left>4</left><top>4</top><width>64</width><height>64</height>
+                <texture border="16" colordiffuse="FFFFFFFF">mv_rounded.png</texture>
+                <visible>Control.HasFocus(800)</visible>
+            </control>
+            <control type="label">
+                <width>72</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font><textcolor>FF091221</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>Control.HasFocus(800)</visible>
+            </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="801">
+                <left>68</left><top>604</top><width>576</width><height>72</height>
+                <orientation>horizontal</orientation>
+                <onup>800</onup>
+                <ondown>801</ondown>
+                <onright condition="Integer.IsGreater(Container(811).NumItems,0)">811</onright><onright condition="!Integer.IsGreater(Container(811).NumItems,0) + Integer.IsGreater(Container(812).NumItems,0)">812</onright>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="192" height="72">
+            <control type="image">
+                <left>4</left><top>4</top><width>184</width><height>64</height>
+                <texture border="16" colordiffuse="1FFFFFFF">mv_rounded.png</texture>
+                <visible>true</visible>
+            </control>
+            <control type="label">
+                <width>192</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font12</font><textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>true</visible>
+            </control>
+                </itemlayout>
+                <focusedlayout width="192" height="72">
+            <control type="image">
+                <left>4</left><top>4</top><width>184</width><height>64</height>
+                <texture border="16" colordiffuse="1FFFFFFF">mv_rounded.png</texture>
+                <visible>!Control.HasFocus(801)</visible>
+            </control>
+            <control type="label">
+                <width>192</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font12</font><textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>!Control.HasFocus(801)</visible>
+            </control>
+            <control type="image">
+                <left>4</left><top>4</top><width>184</width><height>64</height>
+                <texture border="16" colordiffuse="FFFFFFFF">mv_rounded.png</texture>
+                <visible>Control.HasFocus(801)</visible>
+            </control>
+            <control type="label">
+                <width>192</width><height>72</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font12</font><textcolor>FF091221</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>Control.HasFocus(801)</visible>
+            </control>
+                </focusedlayout>
+            </control>
+            <control type="textbox">
+                <left>68</left><top>698</top><width>576</width><height>120</height>
+                <font>font12</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <label>$INFO[Window.Property(search_status)]</label>
+            </control>
+            <control type="group">
+                <visible>!String.IsEmpty(Window.Property(search_row1))</visible>
+                <control type="label">
+                    <left>712</left><top>130</top><width>1180</width><height>46</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Window.Property(search_row1)]</label>
+                </control>
+                <control type="list" id="811">
+                    <left>700</left><top>176</top><width>1220</width><height>278</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>800</onleft>
+                    <onup>100</onup><ondown>812</ondown>
+                    <scrolltime tween="sine">200</scrolltime>
+                    <itemlayout width="410" height="278">
+        <control type="group">
+            
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="$INFO[ListItem.Property(color)]">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture>mv_shade.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)] + String.IsEmpty(ListItem.Property(image))</visible>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)] + !String.IsEmpty(ListItem.Property(image))</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="mv_mask.png">$INFO[ListItem.Property(image)]</texture>
+                </control>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture>mv_photo_shade.png</texture>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)]</visible>
+                <control type="image">
+                    <left>30</left><top>28</top><width>161</width><height>40</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>!String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="image">
+                    <left>30</left><top>28</top><width>120</width><height>30</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Property(channel_name)][/B]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),film)]</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),show)]</visible>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="label">
+                    <left>30</left><top>141</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>169</top><width>360</width><height>47</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="label">
+                    <left>30</left><top>100</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>128</top><width>360</width><height>88</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>71</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>99</top><width>360</width><height>129</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="textbox">
+                    <left>30</left><top>165</top><width>360</width><height>51</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="textbox">
+                    <left>30</left><top>120</top><width>360</width><height>96</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>87</top><width>360</width><height>141</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel)]</visible>
+                <control type="image">
+                    <left>88</left><top>66</top><width>230</width><height>108</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo)]</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>12</top><width>348</width><height>216</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font30_title</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo))</visible>
+                </control>
+            </control>
+            <control type="label">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font45_title</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="FF243552">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),action)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]  &#x203A;</label>
+                <visible>String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>&#x2039;  $INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),back)</visible>
+            </control>
+            <control type="progress">
+                <left>30</left><top>216</top><width>348</width><height>6</height>
+                <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
+                <info>ListItem.PercentPlayed</info>
+                <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
+            </control>
+            <control type="group">
+                <left>308</left><top>24</top>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                <control type="image">
+                    <width>76</width><height>30</height>
+                    <texture border="12" colordiffuse="FFE0263C">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <width>76</width><height>30</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font10</font><textcolor>FFFFFFFF</textcolor>
+                    <label>LIVE</label>
+                </control>
+            </control>
+            
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <scroll>false</scroll>
+                <label>$INFO[ListItem.Label2]</label>
+                <visible>![String.IsEqual(ListItem.Property(kind),live)] + ![String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <scroll>false</scroll>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),live)]</visible>
+            </control>
+        </control>
+                    </itemlayout>
+                    <focusedlayout width="410" height="278">
+        <control type="group">
+            <animation effect="zoom" end="106" center="204,120" time="150" tween="sine" condition="Control.HasFocus(811)">Conditional</animation>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="$INFO[ListItem.Property(color)]">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture>mv_shade.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)] + String.IsEmpty(ListItem.Property(image))</visible>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)] + !String.IsEmpty(ListItem.Property(image))</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="mv_mask.png">$INFO[ListItem.Property(image)]</texture>
+                </control>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture>mv_photo_shade.png</texture>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)]</visible>
+                <control type="image">
+                    <left>30</left><top>28</top><width>161</width><height>40</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>!String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="image">
+                    <left>30</left><top>28</top><width>120</width><height>30</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Property(channel_name)][/B]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),film)]</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),show)]</visible>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="label">
+                    <left>30</left><top>141</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>169</top><width>360</width><height>47</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="label">
+                    <left>30</left><top>100</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>128</top><width>360</width><height>88</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>71</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>99</top><width>360</width><height>129</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="textbox">
+                    <left>30</left><top>165</top><width>360</width><height>51</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="textbox">
+                    <left>30</left><top>120</top><width>360</width><height>96</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>87</top><width>360</width><height>141</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel)]</visible>
+                <control type="image">
+                    <left>88</left><top>66</top><width>230</width><height>108</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo)]</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>12</top><width>348</width><height>216</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font30_title</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo))</visible>
+                </control>
+            </control>
+            <control type="label">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font45_title</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="FF243552">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),action)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]  &#x203A;</label>
+                <visible>String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>&#x2039;  $INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),back)</visible>
+            </control>
+            <control type="progress">
+                <left>30</left><top>216</top><width>348</width><height>6</height>
+                <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
+                <info>ListItem.PercentPlayed</info>
+                <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
+            </control>
+            <control type="group">
+                <left>308</left><top>24</top>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                <control type="image">
+                    <width>76</width><height>30</height>
+                    <texture border="12" colordiffuse="FFE0263C">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <width>76</width><height>30</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font10</font><textcolor>FFFFFFFF</textcolor>
+                    <label>LIVE</label>
+                </control>
+            </control>
+            
+            <control type="image">
+                <left>6</left><top>6</top><width>396</width><height>228</height>
+                <texture border="16" colordiffuse="FFFFFFFF">mv_focus.png</texture>
+                <visible>Control.HasFocus(811)</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <scroll>true</scroll>
+                <label>$INFO[ListItem.Label2]</label>
+                <visible>![String.IsEqual(ListItem.Property(kind),live)] + ![String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <scroll>true</scroll>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),live)]</visible>
+            </control>
+        </control>
+                    </focusedlayout>
+                </control>
+            </control>
+            <control type="group">
+                <visible>!String.IsEmpty(Window.Property(search_row2))</visible>
+                <control type="label">
+                    <left>712</left><top>464</top><width>1180</width><height>46</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Window.Property(search_row2)]</label>
+                </control>
+                <control type="list" id="812">
+                    <left>700</left><top>510</top><width>1220</width><height>278</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>800</onleft>
+                    <onup condition="Integer.IsGreater(Container(811).NumItems,0)">811</onup><onup condition="!Integer.IsGreater(Container(811).NumItems,0)">100</onup><ondown>812</ondown>
+                    <scrolltime tween="sine">200</scrolltime>
+                    <itemlayout width="410" height="278">
+        <control type="group">
+            
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="$INFO[ListItem.Property(color)]">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture>mv_shade.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)] + String.IsEmpty(ListItem.Property(image))</visible>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)] + !String.IsEmpty(ListItem.Property(image))</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="mv_mask.png">$INFO[ListItem.Property(image)]</texture>
+                </control>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture>mv_photo_shade.png</texture>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)]</visible>
+                <control type="image">
+                    <left>30</left><top>28</top><width>161</width><height>40</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>!String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="image">
+                    <left>30</left><top>28</top><width>120</width><height>30</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Property(channel_name)][/B]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),film)]</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),show)]</visible>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="label">
+                    <left>30</left><top>141</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>169</top><width>360</width><height>47</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="label">
+                    <left>30</left><top>100</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>128</top><width>360</width><height>88</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>71</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>99</top><width>360</width><height>129</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="textbox">
+                    <left>30</left><top>165</top><width>360</width><height>51</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="textbox">
+                    <left>30</left><top>120</top><width>360</width><height>96</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>87</top><width>360</width><height>141</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel)]</visible>
+                <control type="image">
+                    <left>88</left><top>66</top><width>230</width><height>108</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo)]</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>12</top><width>348</width><height>216</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font30_title</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo))</visible>
+                </control>
+            </control>
+            <control type="label">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font45_title</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="FF243552">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),action)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]  &#x203A;</label>
+                <visible>String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>&#x2039;  $INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),back)</visible>
+            </control>
+            <control type="progress">
+                <left>30</left><top>216</top><width>348</width><height>6</height>
+                <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
+                <info>ListItem.PercentPlayed</info>
+                <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
+            </control>
+            <control type="group">
+                <left>308</left><top>24</top>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                <control type="image">
+                    <width>76</width><height>30</height>
+                    <texture border="12" colordiffuse="FFE0263C">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <width>76</width><height>30</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font10</font><textcolor>FFFFFFFF</textcolor>
+                    <label>LIVE</label>
+                </control>
+            </control>
+            
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <scroll>false</scroll>
+                <label>$INFO[ListItem.Label2]</label>
+                <visible>![String.IsEqual(ListItem.Property(kind),live)] + ![String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FF8FA3BF</textcolor>
+                <scroll>false</scroll>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),live)]</visible>
+            </control>
+        </control>
+                    </itemlayout>
+                    <focusedlayout width="410" height="278">
+        <control type="group">
+            <animation effect="zoom" end="106" center="204,120" time="150" tween="sine" condition="Control.HasFocus(812)">Conditional</animation>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="$INFO[ListItem.Property(color)]">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture>mv_shade.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel) | String.IsEqual(ListItem.Property(kind),show) | String.IsEqual(ListItem.Property(kind),letter)] + String.IsEmpty(ListItem.Property(image))</visible>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)] + !String.IsEmpty(ListItem.Property(image))</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="mv_mask.png">$INFO[ListItem.Property(image)]</texture>
+                </control>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture>mv_photo_shade.png</texture>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film) | String.IsEqual(ListItem.Property(kind),show)]</visible>
+                <control type="image">
+                    <left>30</left><top>28</top><width>161</width><height>40</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>!String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="image">
+                    <left>30</left><top>28</top><width>120</width><height>30</height>
+                    <aspectratio align="left" aligny="top">keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo_small)]</texture>
+                    <visible>String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>[B]$INFO[ListItem.Property(channel_name)][/B]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),film)]</visible>
+                </control>
+                <control type="label">
+                    <left>30</left><top>28</top><width>348</width><height>40</height>
+                    <aligny>center</aligny>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo_small)) + [String.IsEqual(ListItem.Property(kind),show)]</visible>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="label">
+                    <left>30</left><top>141</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>169</top><width>360</width><height>47</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="label">
+                    <left>30</left><top>100</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>128</top><width>360</width><height>88</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),film)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>71</top><width>348</width><height>30</height>
+                    <font>font10</font>
+                    <textcolor>D9FFFFFF</textcolor>
+                    <label>$INFO[ListItem.Property(tile_top)]</label>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>99</top><width>360</width><height>129</height>
+                    <font>font13</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>$INFO[ListItem.Property(title)]</label>
+                </control>
+            </control>
+
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),1)</visible>
+                <control type="textbox">
+                    <left>30</left><top>165</top><width>360</width><height>51</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),2)</visible>
+                <control type="textbox">
+                    <left>30</left><top>120</top><width>360</width><height>96</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),show)] + String.IsEqual(ListItem.Property(title_lines),3)</visible>
+                <control type="image">
+                    <left>12</left><top>12</top><width>384</width><height>216</height>
+                    <texture border="12" colordiffuse="59000000">mv_rounded.png</texture>
+                </control>
+                <control type="textbox">
+                    <left>30</left><top>87</top><width>360</width><height>141</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <shadowcolor>66000000</shadowcolor>
+                    <label>[B]$INFO[ListItem.Property(title)][/B]</label>
+                </control>
+            </control>
+            <control type="group">
+                <visible>[String.IsEqual(ListItem.Property(kind),live) | String.IsEqual(ListItem.Property(kind),channel)]</visible>
+                <control type="image">
+                    <left>88</left><top>66</top><width>230</width><height>108</height>
+                    <aspectratio>keep</aspectratio>
+                    <texture background="true">$INFO[ListItem.Property(logo)]</texture>
+                </control>
+                <control type="label">
+                    <left>30</left><top>12</top><width>348</width><height>216</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font30_title</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[ListItem.Label]</label>
+                    <visible>String.IsEmpty(ListItem.Property(logo))</visible>
+                </control>
+            </control>
+            <control type="label">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font45_title</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),letter)]</visible>
+            </control>
+            <control type="image">
+                <left>12</left><top>12</top><width>384</width><height>216</height>
+                <texture border="12" colordiffuse="FF243552">mv_rounded.png</texture>
+                <visible>[String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),action)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>$INFO[ListItem.Label]  &#x203A;</label>
+                <visible>String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next)</visible>
+            </control>
+            <control type="label">
+                <left>30</left><top>12</top><width>348</width><height>216</height>
+                <align>center</align><aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <label>&#x2039;  $INFO[ListItem.Label]</label>
+                <visible>String.IsEqual(ListItem.Property(kind),back)</visible>
+            </control>
+            <control type="progress">
+                <left>30</left><top>216</top><width>348</width><height>6</height>
+                <texturebg colordiffuse="55FFFFFF">mv_white.png</texturebg>
+                <midtexture colordiffuse="FFFFC61A">mv_white.png</midtexture>
+                <info>ListItem.PercentPlayed</info>
+                <visible>!String.IsEmpty(ListItem.Property(progress))</visible>
+            </control>
+            <control type="group">
+                <left>308</left><top>24</top>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                <control type="image">
+                    <width>76</width><height>30</height>
+                    <texture border="12" colordiffuse="FFE0263C">mv_rounded.png</texture>
+                </control>
+                <control type="label">
+                    <width>76</width><height>30</height>
+                    <align>center</align><aligny>center</aligny>
+                    <font>font10</font><textcolor>FFFFFFFF</textcolor>
+                    <label>LIVE</label>
+                </control>
+            </control>
+            
+            <control type="image">
+                <left>6</left><top>6</top><width>396</width><height>228</height>
+                <texture border="16" colordiffuse="FFFFFFFF">mv_focus.png</texture>
+                <visible>Control.HasFocus(812)</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <scroll>true</scroll>
+                <label>$INFO[ListItem.Label2]</label>
+                <visible>![String.IsEqual(ListItem.Property(kind),live)] + ![String.IsEqual(ListItem.Property(kind),action) | String.IsEqual(ListItem.Property(kind),all) | String.IsEqual(ListItem.Property(kind),next) | String.IsEqual(ListItem.Property(kind),back)]</visible>
+            </control>
+            <control type="label">
+                <left>14</left><top>238</top><width>380</width><height>34</height>
+                <font>font12</font>
+                <textcolor>FFFFFFFF</textcolor>
+                <scroll>true</scroll>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>[String.IsEqual(ListItem.Property(kind),live)]</visible>
+            </control>
+        </control>
+                    </focusedlayout>
+                </control>
+            </control>
+            <control type="group">
+                <left>80</left><top>826</top>
+                <visible>Control.HasFocus(811)</visible>
+                <control type="label">
+                    <width>1760</width><height>40</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container(811).ListItem.Label]</label>
+                </control>
+                <control type="label">
+                    <top>44</top><width>1760</width><height>36</height>
+                    <font>font12</font>
+                    <textcolor>FFFFDB75</textcolor>
+                    <label>$INFO[Container(811).ListItem.Property(meta)]</label>
+                </control>
+                <control type="textbox">
+                    <top>86</top><width>1760</width><height>132</height>
+                    <font>font12</font>
+                    <textcolor>FF8FA3BF</textcolor>
+                    <label>$INFO[Container(811).ListItem.Plot]</label>
+                    <autoscroll delay="6000" time="3000" repeat="10000">true</autoscroll>
+                </control>
+            </control>
+            <control type="group">
+                <left>80</left><top>826</top>
+                <visible>Control.HasFocus(812)</visible>
+                <control type="label">
+                    <width>1760</width><height>40</height>
+                    <font>font14</font>
+                    <textcolor>FFFFFFFF</textcolor>
+                    <label>$INFO[Container(812).ListItem.Label]</label>
+                </control>
+                <control type="label">
+                    <top>44</top><width>1760</width><height>36</height>
+                    <font>font12</font>
+                    <textcolor>FFFFDB75</textcolor>
+                    <label>$INFO[Container(812).ListItem.Property(meta)]</label>
+                </control>
+                <control type="textbox">
+                    <top>86</top><width>1760</width><height>132</height>
+                    <font>font12</font>
+                    <textcolor>FF8FA3BF</textcolor>
+                    <label>$INFO[Container(812).ListItem.Plot]</label>
+                    <autoscroll delay="6000" time="3000" repeat="10000">true</autoscroll>
+                </control>
+            </control>
+        </control>
+
         <!-- Status -->
         <control type="label">
             <left>80</left><bottom>30</bottom><width>1760</width><height>40</height>

@@ -882,6 +882,7 @@ WINDOW_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
             </control>{grid_scrollbar}
         </control>
 
+{search_view}
         <!-- Status -->
         <control type="label">
             <left>80</left><bottom>30</bottom><width>1760</width><height>40</height>
@@ -911,6 +912,196 @@ WINDOW_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
     </controls>
 </window>
 '''
+
+
+# Search while typing: a keyboard of the window itself on the left, Kodi's keyboard dialog only returns the
+# text when it is closed. The results on the right follow every key.
+SEARCH_KEY = 72
+SEARCH_COLUMNS = 8
+SEARCH_KEY_ROWS = 5
+SEARCH_LEFT = 68
+SEARCH_TOP = 236
+SEARCH_RESULTS_LEFT = 700
+SEARCH_SPECIAL_WIDTH = SEARCH_KEY * SEARCH_COLUMNS // 3
+
+
+def search_key_layout(list_id, focused, width, height, font):
+    """A key of the keyboard of the search"""
+    has_focus = 'Control.HasFocus(%d)' % list_id
+    parts = ['''
+            <control type="image">
+                <left>4</left><top>4</top><width>{w}</width><height>{h}</height>
+                <texture border="16" colordiffuse="1FFFFFFF">mv_rounded.png</texture>
+                <visible>{hide}</visible>
+            </control>
+            <control type="label">
+                <width>{width}</width><height>{height}</height>
+                <align>center</align><aligny>center</aligny>
+                <font>{font}</font><textcolor>{text}</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>{hide}</visible>
+            </control>'''.format(w=width - 8, h=height - 8, width=width, height=height, font=font, text=TEXT,
+                                 hide='!' + has_focus if focused else 'true')]
+    if focused:
+        parts.append('''
+            <control type="image">
+                <left>4</left><top>4</top><width>{w}</width><height>{h}</height>
+                <texture border="16" colordiffuse="FFFFFFFF">mv_rounded.png</texture>
+                <visible>{focus}</visible>
+            </control>
+            <control type="label">
+                <width>{width}</width><height>{height}</height>
+                <align>center</align><aligny>center</aligny>
+                <font>{font}</font><textcolor>{dark}</textcolor>
+                <label>$INFO[ListItem.Label]</label>
+                <visible>{focus}</visible>
+            </control>'''.format(w=width - 8, h=height - 8, width=width, height=height, font=font, dark=TEXT_DARK,
+                                 focus=has_focus))
+    return ''.join(parts)
+
+
+def search_row(list_id, top, number):
+    """A row of results right of the keyboard, its title is a window property"""
+    if list_id == 811:
+        navigation = '<onup>100</onup><ondown>812</ondown>'
+    else:
+        navigation = ('<onup condition="Integer.IsGreater(Container(811).NumItems,0)">811</onup>'
+                      '<onup condition="!Integer.IsGreater(Container(811).NumItems,0)">100</onup>'
+                      '<ondown>812</ondown>')
+    return '''
+            <control type="group">
+                <visible>!String.IsEmpty(Window.Property(search_row{number}))</visible>
+                <control type="label">
+                    <left>{label_left}</left><top>{top}</top><width>1180</width><height>46</height>
+                    <font>font14</font>
+                    <textcolor>{text}</textcolor>
+                    <label>$INFO[Window.Property(search_row{number})]</label>
+                </control>
+                <control type="list" id="{list_id}">
+                    <left>{left}</left><top>{list_top}</top><width>{width}</width><height>{tile_height}</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>800</onleft>
+                    {navigation}
+                    <scrolltime tween="sine">200</scrolltime>
+                    <itemlayout width="{tile_width}" height="{tile_height}">{item}
+                    </itemlayout>
+                    <focusedlayout width="{tile_width}" height="{tile_height}">{focused}
+                    </focusedlayout>
+                </control>
+            </control>'''.format(
+        number=number, list_id=list_id, top=top, list_top=top + 46, label_left=SEARCH_RESULTS_LEFT + 12,
+        left=SEARCH_RESULTS_LEFT, width=1920 - SEARCH_RESULTS_LEFT, text=TEXT, tile_width=TILE_WIDTH,
+        tile_height=TILE_HEIGHT, navigation=navigation,
+        item=tile_layout(list_id, False, TILE_WIDTH, THUMB_WIDTH, THUMB_HEIGHT, 'mv_shade.png'),
+        focused=tile_layout(list_id, True, TILE_WIDTH, THUMB_WIDTH, THUMB_HEIGHT, 'mv_shade.png'))
+
+
+def search_focused_item(list_id):
+    """Title, line of information and description of the focused result below the rows"""
+    return '''
+            <control type="group">
+                <left>80</left><top>826</top>
+                <visible>Control.HasFocus({list_id})</visible>
+                <control type="label">
+                    <width>1760</width><height>40</height>
+                    <font>font14</font>
+                    <textcolor>{text}</textcolor>
+                    <label>$INFO[Container({list_id}).ListItem.Label]</label>
+                </control>
+                <control type="label">
+                    <top>44</top><width>1760</width><height>36</height>
+                    <font>font12</font>
+                    <textcolor>{message}</textcolor>
+                    <label>$INFO[Container({list_id}).ListItem.Property(meta)]</label>
+                </control>
+                <control type="textbox">
+                    <top>86</top><width>1760</width><height>132</height>
+                    <font>font12</font>
+                    <textcolor>{dim}</textcolor>
+                    <label>$INFO[Container({list_id}).ListItem.Plot]</label>
+                    <autoscroll delay="6000" time="3000" repeat="10000">true</autoscroll>
+                </control>
+            </control>'''.format(list_id=list_id, text=TEXT, dim=TEXT_DIM, message=MESSAGE)
+
+
+SEARCH_TEMPLATE = '''
+        <!-- Search while typing -->
+        <control type="group">
+            <visible>String.IsEqual(Window.Property(view),search)</visible>
+            <control type="image">
+                <left>{left}</left><top>140</top><width>{width}</width><height>72</height>
+                <texture border="28" colordiffuse="26FFFFFF">mv_pill.png</texture>
+            </control>
+            <control type="label">
+                <left>{text_left}</left><top>140</top><width>{text_width}</width><height>72</height>
+                <aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>{text}</textcolor>
+                <label>$INFO[Window.Property(search_text)][COLOR {accent}]|[/COLOR]</label>
+                <visible>!String.IsEmpty(Window.Property(search_text))</visible>
+            </control>
+            <control type="label">
+                <left>{text_left}</left><top>140</top><width>{text_width}</width><height>72</height>
+                <aligny>center</aligny>
+                <font>font13</font>
+                <textcolor>{dim}</textcolor>
+                <label>{hint}</label>
+                <visible>String.IsEmpty(Window.Property(search_text))</visible>
+            </control>
+            <control type="panel" id="800">
+                <left>{left}</left><top>{top}</top><width>{width}</width><height>{keys_height}</height>
+                <orientation>vertical</orientation>
+                <onup>100</onup>
+                <ondown>801</ondown>
+                <onleft>800</onleft>
+                {right}
+                <scrolltime>0</scrolltime>
+                <itemlayout width="{key}" height="{key}">{key_item}
+                </itemlayout>
+                <focusedlayout width="{key}" height="{key}">{key_focused}
+                </focusedlayout>
+            </control>
+            <control type="list" id="801">
+                <left>{left}</left><top>{special_top}</top><width>{width}</width><height>{key}</height>
+                <orientation>horizontal</orientation>
+                <onup>800</onup>
+                <ondown>801</ondown>
+                {right}
+                <scrolltime>0</scrolltime>
+                <itemlayout width="{special}" height="{key}">{special_item}
+                </itemlayout>
+                <focusedlayout width="{special}" height="{key}">{special_focused}
+                </focusedlayout>
+            </control>
+            <control type="textbox">
+                <left>{left}</left><top>{status_top}</top><width>{width}</width><height>120</height>
+                <font>font12</font>
+                <textcolor>{dim}</textcolor>
+                <label>$INFO[Window.Property(search_status)]</label>
+            </control>{rows}
+        </control>
+'''
+
+
+def search_view():
+    results = 'Integer.IsGreater(Container(811).NumItems,0)'
+    videos = 'Integer.IsGreater(Container(812).NumItems,0)'
+    right = ('<onright condition="{r}">811</onright><onright condition="!{r} + {v}">812</onright>'
+             .format(r=results, v=videos))
+    width = SEARCH_KEY * SEARCH_COLUMNS
+    keys_height = SEARCH_KEY * SEARCH_KEY_ROWS
+    rows = (search_row(811, 130, 1) + search_row(812, 464, 2) + search_focused_item(811) +
+            search_focused_item(812))
+    return SEARCH_TEMPLATE.format(
+        left=SEARCH_LEFT, top=SEARCH_TOP, width=width, text_left=SEARCH_LEFT + 30, text_width=width - 60,
+        text=TEXT, dim=TEXT_DIM, accent=ACCENT, hint=localize(30649), key=SEARCH_KEY, keys_height=keys_height,
+        right=right, special_top=SEARCH_TOP + keys_height + 8, special=SEARCH_SPECIAL_WIDTH,
+        status_top=SEARCH_TOP + keys_height + SEARCH_KEY + 30,
+        key_item=search_key_layout(800, False, SEARCH_KEY, SEARCH_KEY, 'font14'),
+        key_focused=search_key_layout(800, True, SEARCH_KEY, SEARCH_KEY, 'font14'),
+        special_item=search_key_layout(801, False, SEARCH_SPECIAL_WIDTH, SEARCH_KEY, 'font12'),
+        special_focused=search_key_layout(801, True, SEARCH_SPECIAL_WIDTH, SEARCH_KEY, 'font12'),
+        rows=rows)
 
 
 def preview():
@@ -952,6 +1143,7 @@ def generate_window():
         grid_item=tile_layout(600, False, GRID_TILE_WIDTH, GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 'mv_shade_grid.png'),
         grid_focused=tile_layout(600, True, GRID_TILE_WIDTH, GRID_THUMB_WIDTH, GRID_THUMB_HEIGHT, 'mv_shade_grid.png'),
         grid_scrollbar=scrollbar(601, 600, 602, 1890, 190, 880),
+        search_view=search_view(),
         loading=localize(30675),
         empty=localize(30676),
     )
